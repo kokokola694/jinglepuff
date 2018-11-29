@@ -4,10 +4,10 @@
 Oh no, Team Rocket has stolen the townspeople's Pokemon and is getting away! But lucky for us, we can count on our hero, the dependable Jigglypuff, to save the day.
 
 ## Gameplay
-Jigglypuff must jump to navigate platforms and avoid falling off the map. As the clumsy villains they are, Team Rocket has dropped some of the PokeBalls they stole - it's up to Jigglypuff to pick them up to return them to their Trainers (and receive bonus points).
+Gameplay will involve a moving background, with Jigglypuff on the left and enemies approaching from the right. Jigglypuff must jump to avoid enemies as she chases Team Rocket. As the clumsy villains they are, Team Rocket has dropped some of the PokeBalls they stole - it's up to Jigglypuff to pick them up to return them to their Trainers (and receive bonus points).
 
 ## Functionality and MVP
-Gameplay will involve a moving background & platforms for the player to jump on. Players will be able to:
+Players will be able to:
 * Jump on keystroke (spacebar)
 * Collect Pokeballs for points
 
@@ -31,14 +31,15 @@ In addition, the following will be included:
 Set up rendering of game box. Implement player that is able to jump.
 
 ### Part Two
-Implement and render moving platforms. Enable player to walk on platforms. Player loses if fall off map.
+Implement and render enemies. Implement hitbox. Player loses if hit by enemy.
 
 ### Part Three
-Implement pokeballs and scores. Polish graphics.
+Implement pokeballs and scores. Play menu. Polish graphics.
 
 ## Wireframe
-![wireframe](assets/images/wireframe.jpg)
+![wireframe](assets/images/wireframe.png)
 
 ## Bonus Features
-* Have different platform speeds (difficulty)
-* Have Team Rocket occassionally attack Jigglypuff (more obstacles)
+* Have different enemy speeds (difficulty)
+* Have Team Rocket occasionally attack Jigglypuff (special obstacles)
+* Items to pick up (ex. invincibility item)
