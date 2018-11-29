@@ -1,4 +1,9 @@
-#canvas {
+#canvas, #background {
+  position: absolute;
   border: 1px solid #000;
   margin: 100px 100px;
+}
+
+#background {
+  z-index: -1;
 }
