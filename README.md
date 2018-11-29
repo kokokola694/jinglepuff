@@ -36,6 +36,9 @@ Implement and render moving platforms. Enable player to walk on platforms. Playe
 ### Part Three
 Implement pokeballs and scores. Polish graphics.
 
+## Wireframe
+![wireframe](assets/images/wireframe.jpg)
+
 ## Bonus Features
 * Have different platform speeds (difficulty)
 * Have Team Rocket occassionally attack Jigglypuff (more obstacles)

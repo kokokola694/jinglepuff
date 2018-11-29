@@ -1,0 +1,26 @@
+{
+  "name": "jinglepuff",
+  "version": "1.0.0",
+  "description": "## About Oh no, Team Rocket has stolen the townspeople's Pokemon and is getting away! But lucky for us, we can count on our hero, the dependable Jigglypuff, to save the day.",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kokokola694/jinglepuff.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kokokola694/jinglepuff/issues"
+  },
+  "homepage": "https://github.com/kokokola694/jinglepuff#readme",
+  "devDependencies": {
+    "webpack": "^4.26.1",
+    "webpack-cli": "^3.1.2"
+  }
+}
