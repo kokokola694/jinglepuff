@@ -2,12 +2,16 @@ html {
   background-image: url('../images/jinglepuff-background.png');
 }
 
-#canvas, #background {
+#canvas, #background, #ground {
   position: absolute;
   border: 1px solid #000;
   margin: 100px 100px;
 }
 
 #background {
+  z-index: -2;
+}
+
+#ground {
   z-index: -1;
 }
