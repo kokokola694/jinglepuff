@@ -31,6 +31,40 @@ body {
   color: white;
 }
 
+#leaderboard {
+  position:absolute;
+  top:360px;
+  bottom:0;
+  right:0;left:0;
+  margin-left: auto;
+  margin-right: auto;
+  width: 300px;
+  height: 200px;
+  background-color: pink;
+  box-sizing: border-box;
+  border-radius: 10px;
+}
+
+#leaderboard h1 {
+  text-align: center;
+  margin-top: 20px;
+}
+
+#scores-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#leaderboard h1 {
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+#scores-list li {
+  margin: 5px 0;
+}
+
 .blinking{
     animation:blinkingText 1.5s infinite;
 }

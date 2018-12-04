@@ -41,14 +41,14 @@
   width: 35px;
 }
 
-.close {
+#modal-close {
     color: #aaa;
     font-weight: bold;
     font-size: 35px;
     float: right;
 }
 
-.close:hover{
+#modal-close:hover{
     cursor: pointer;
     color: black;
     text-decoration: none;

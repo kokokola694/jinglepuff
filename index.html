@@ -8,6 +8,7 @@
       <link rel="stylesheet" href="https://cdn.rawgit.com/konpa/devicon/df6431e323547add1b4cf45992913f15286456d3/devicon.min.css">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
       <link href="https://fonts.googleapis.com/css?family=Aclonica" rel="stylesheet">
+
 </head>
   <body>
     <div id="title-screen">
@@ -18,15 +19,21 @@
       <canvas id="canvas" width="900" height="400" tabindex="1"></canvas>
       <canvas id="ground" width="900" height="400" ></canvas>
       <canvas id="background" width="900" height="400"></canvas>
-
     </div>
+    <div id="leaderboard" class="hidden">
+      <h1>YOUR HIGH SCORES</h1>
+      <ul id="scores-list">
+
+      </ul>
+    </div>
+
     <script type="text/javascript" src="./lib/bundle.js"></script>
 
 
     <section id="myModal" class="modal">
 
       <div class="modal-content">
-        <span class="close">&times;</span>
+        <section id="modal-close">&times;</section>
         <h1>How to Play</h1>
         <ul>
           <li>Avoid enemies like Koffing and Meowth by pressing SPACE to jump!</li>
@@ -35,9 +42,6 @@
       </div>
 
     </section>
-
-
-
 
     <footer>
       <section>
@@ -52,4 +56,7 @@
     </footer>
 
   </body>
+
+
+
 </html>
