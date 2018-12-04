@@ -1,0 +1,55 @@
+#open-modal {
+  padding: 20px;
+}
+
+#open-modal:hover {
+  color: pink;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 5;
+    background-color: rgba(0,0,0,0.5);
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+}
+
+.modal-content {
+    background-color: #e8f7fc;
+    margin: 15% auto;
+    padding: 30px;
+    border: 1px solid #888;
+    width: 50%;
+    border: 5px solid lightblue;
+}
+
+.modal-content h1 {
+  font-size: 40px;
+}
+
+.modal-content li {
+  margin: 10px 0;
+}
+
+.modal-content img {
+  display: inline;
+  height: 35px;
+  width: 35px;
+}
+
+.close {
+    color: #aaa;
+    font-weight: bold;
+    font-size: 35px;
+    float: right;
+}
+
+.close:hover{
+    cursor: pointer;
+    color: black;
+    text-decoration: none;
+}

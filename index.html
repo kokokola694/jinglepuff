@@ -4,12 +4,52 @@
       <title>jinglepuff</title>
       <link href="./assets/stylesheets/reset.css" rel="stylesheet">
       <link href="./assets/stylesheets/game.css" rel="stylesheet">
-  </head>
+      <link href="./assets/stylesheets/modal.css" rel="stylesheet">
+      <link rel="stylesheet" href="https://cdn.rawgit.com/konpa/devicon/df6431e323547add1b4cf45992913f15286456d3/devicon.min.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+      <link href="https://fonts.googleapis.com/css?family=Aclonica" rel="stylesheet">
+</head>
   <body>
-    <canvas id="canvas" width="900" height="400" tabindex="1"></canvas>
-    <canvas id="ground" width="900" height="400" ></canvas>
-    <canvas id="background" width="900" height="400"></canvas>
+    <div id="title-screen">
+      <h1>Jinglepuff</h1>
+      <h2 class="blinking">Click anywhere to play!</h2>
+    </div>
+    <div id"canvas-container">
+      <canvas id="canvas" width="900" height="400" tabindex="1"></canvas>
+      <canvas id="ground" width="900" height="400" ></canvas>
+      <canvas id="background" width="900" height="400"></canvas>
+
+    </div>
     <script type="text/javascript" src="./lib/bundle.js"></script>
+
+
+    <section id="myModal" class="modal">
+
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <h1>How to Play</h1>
+        <ul>
+          <li>Avoid enemies like Koffing and Meowth by pressing SPACE to jump!</li>
+          <li>Collect PokeBalls to obtain bonus points! <img src="assets/images/pokeball.png"/></li>
+        </ul>
+      </div>
+
+    </section>
+
+
+
+
+    <footer>
+      <section>
+        <h2>Created by: <a href="https://kokokola694.github.io/">Michael Ko</a></h2>
+        <div>
+          <a href="https://github.com/kokokola694"><i class="fa fa-github" style="font-size:50px"></i></a>
+          <a href="https://www.linkedin.com/in/michael-ko-7bb503b1/"><i class="fa fa-linkedin-square" style="font-size:50px"></i></a>
+        </div>
+      </section>
+      <button id="open-modal">How to Play</button>
+
+    </footer>
 
   </body>
 </html>
