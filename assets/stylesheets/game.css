@@ -2,44 +2,47 @@ html {
   background-image: url('../images/jinglepuff-background.png');
 }
 
+
+
 body {
   font-family: 'Aclonica', sans-serif;
+  text-align: center;
+  height: 100vh;
+}
+
+#logo {
+  width: 300px;
+  margin: auto;
+  padding: 30px;
 }
 
 #title-screen {
-  /* display: block; */
   position:absolute;
-  top:0;bottom:0;right:0;left:0;
   margin:auto;
   width: 900px;
   height: 400px;
-  background-color: pink;
+  background-image: url('../images/titlescreen.png');
   box-sizing: border-box;
-  padding-top: 150px;
 }
 
-#title-screen h1 {
-  text-align: center;
-  font-size: 60px;
-  color: #eefcff;
-}
 
 #title-screen h2 {
   text-align: center;
   font-size: 20px;
-  margin-top: 20px;
+  margin-top: 60px;
   color: white;
+  padding-top: 150px;
 }
 
 #leaderboard {
   position:absolute;
-  top:360px;
+  top:200px;
   bottom:0;
   right:0;left:0;
   margin-left: auto;
   margin-right: auto;
   width: 300px;
-  height: 200px;
+  height: 180px;
   background-color: pink;
   box-sizing: border-box;
   border-radius: 10px;
@@ -50,6 +53,8 @@ body {
 #leaderboard h1 {
   text-align: center;
   margin-top: 20px;
+  margin-bottom: 10px;
+  font-size: 20px;
 }
 
 #scores-list {
@@ -58,18 +63,14 @@ body {
   align-items: center;
 }
 
-#leaderboard h1 {
-  font-size: 20px;
-  margin-bottom: 10px;
-}
-
 #scores-list li {
   margin: 5px 0;
+  font-size: 12px;
 }
 
 #settings-disp {
   position: absolute;
-  top: 200px;
+  top: 2%;
   bottom:0;
   right:0;left:0;
   margin-left: auto;
@@ -81,12 +82,12 @@ body {
 }
 
 #gameover-disp {
-  position: absolute;
-  top: 250px;
-  bottom:0;
-  right:0;left:0;
+  position:absolute;
   margin-left: auto;
   margin-right: auto;
+  top: 100px;
+  left: 0;
+  right: 0;
   width: 450px;
   height: 100px;
   text-align: center;
@@ -119,15 +120,17 @@ body {
 }
 
 #canvas-container {
-  width:100%;
-  height:100vh;
+  display: inline-block;
+  width:900px;
+  height:400px;
+  top: 15%;
   position:relative;
 }
 
 #canvas, #background, #ground {
   display: block;
   position:absolute;
-  top:0;bottom:0;right:0;left:0;
+  /* top:0;bottom:0;right:0;left:0; */
   margin:auto;
   border: 1px solid #000;
   box-shadow: 6px 6px 6px 6px rgba(0,0,0,0.15);
@@ -171,8 +174,8 @@ footer {
   box-sizing: border-box;
   padding: 20px 10px;
   margin: auto;
-  width: 50%;
-  top: 600px;
+  width: 70%;
+  top: 450px;
   background-color: pink;
   border: 1px solid #000;
   display: flex;
@@ -195,6 +198,7 @@ footer {
   align-items: center;
   padding: 10px;
   box-sizing: border-box;
+  font-size: 15px;
 }
 
 .footer-buttons button {
@@ -203,4 +207,41 @@ footer {
 
 .footer-buttons button:hover {
   color: pink;
+}
+
+/* @media screen and (min-width: 320px) and (max-width: 767px) and (orientation: landscape) {
+  html {
+    transform: rotate(-90deg);
+    transform-origin: left top;
+    width: 100vh;
+    overflow-x: hidden;
+    position: absolute;
+    top: 100%;
+    left: 0;
+  }
+} */
+
+@media screen and (max-width: 800px) {
+  html {
+    width: 100vh;
+    height: 100vh;
+  }
+
+
+  #logo {
+    display: none;
+    height: 0;
+  }
+
+  #canvas-container {
+    top: 0%;
+    height: 80%;
+  }
+
+  footer {
+    position: fixed;
+    bottom: 0;
+    height: 25%;
+    width: 100%;
+  }
 }

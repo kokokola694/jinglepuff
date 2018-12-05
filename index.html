@@ -2,20 +2,20 @@
 <html>
   <head>
       <title>jinglepuff</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <link href="./assets/stylesheets/reset.css" rel="stylesheet">
-      <link href="./assets/stylesheets/game.css" rel="stylesheet">
       <link href="./assets/stylesheets/modal.css" rel="stylesheet">
+      <link href="./assets/stylesheets/game.css" rel="stylesheet">
       <link rel="stylesheet" href="https://cdn.rawgit.com/konpa/devicon/df6431e323547add1b4cf45992913f15286456d3/devicon.min.css">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
       <link href="https://fonts.googleapis.com/css?family=Aclonica" rel="stylesheet">
-
 </head>
   <body>
-    <div id="title-screen">
-      <h1>Jinglepuff</h1>
-      <h2 class="blinking">Click anywhere to play!</h2>
-    </div>
-    <div id"canvas-container">
+    <img id="logo" src="assets/images/logo.png"/>
+    <section id="canvas-container">
+      <div id="title-screen">
+        <h2 class="blinking">Click anywhere to play!</h2>
+      </div>
       <canvas id="canvas" width="900" height="400" tabindex="1"></canvas>
       <canvas id="ground" width="900" height="400" ></canvas>
       <canvas id="background" width="900" height="400"></canvas>
@@ -33,13 +33,30 @@
         <h1>GAME OVER</h1>
         <h2>Press R to try again!</h2>
       </div>
-    </div>
+
+
+
+      <footer>
+        <button id="open-modal">How to Play</button>
+        <section class="links">
+          <h2>Created by: <a href="https://kokokola694.github.io/">Michael Ko</a></h2>
+          <div>
+            <a href="https://github.com/kokokola694"><i class="fa fa-github" style="font-size:50px"></i></a>
+            <a href="https://www.linkedin.com/in/michael-ko-7bb503b1/"><i class="fa fa-linkedin-square" style="font-size:50px"></i></a>
+          </div>
+        </section>
+        <section class="footer-buttons">
+          <button id="pause-btn">Pause (P)</button>
+          <button id="mute-btn">Mute/Unmute (M)</button>
+        </section>
+      </footer>
+    </section>
 
 
     <script type="text/javascript" src="./dist/bundle.js"></script>
 
 
-    <section id="myModal" class="modal">
+    <section id="instructions" class="modal">
 
       <div class="modal-content">
         <section id="modal-close">&times;</section>
@@ -52,20 +69,7 @@
 
     </section>
 
-    <footer>
-      <button id="open-modal">How to Play</button>
-      <section class="links">
-        <h2>Created by: <a href="https://kokokola694.github.io/">Michael Ko</a></h2>
-        <div>
-          <a href="https://github.com/kokokola694"><i class="fa fa-github" style="font-size:50px"></i></a>
-          <a href="https://www.linkedin.com/in/michael-ko-7bb503b1/"><i class="fa fa-linkedin-square" style="font-size:50px"></i></a>
-        </div>
-      </section>
-      <section class="footer-buttons">
-        <button id="pause-btn">Pause (P)</button>
-        <button id="mute-btn">Mute/Unmute (M)</button>
-      </section>
-    </footer>
+
 
   </body>
 
