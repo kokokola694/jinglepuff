@@ -4,7 +4,7 @@ module.exports = {
   entry: "./lib/jinglepuff.js",
   output: {
     filename: "bundle.js",
-    path: path.resolve(__dirname, 'lib')
+    path: path.resolve(__dirname, 'dist')
   },
   devtool: 'source-map'
 };

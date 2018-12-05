@@ -93,6 +93,9 @@
 /*! no static exports found */
 /***/ (function(module, exports) {
 
+const CANVAS_HEIGHT = 400;
+const CANVAS_WIDTH = 900;
+
 class Background {
   constructor(context, src) {
     this.src = src;
@@ -102,14 +105,12 @@ class Background {
   }
 
   render () {
-    const canvWidth = 900;
-    const canvHeight = 400;
-    this.context.clearRect(0, 0, canvWidth, canvHeight);
-    this.context.drawImage(this.src,3,120,1794,773,this.xPos,0,canvWidth,canvHeight);
-    this.context.drawImage(this.src,3,120,1794,773,this.xPos + canvWidth,0,canvWidth,canvHeight);
-    if (this.xPos <= -canvWidth) {
-      this.xPos = 0;
-    }
+    this.context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    this.context.drawImage(this.src,3,120,1794,773,
+      this.xPos,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+    this.context.drawImage(this.src,3,120,1794,773,
+      this.xPos + CANVAS_WIDTH,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+    if (this.xPos <= -CANVAS_WIDTH) this.xPos = 0;
     this.xPos -= this.speed;
   }
 }
@@ -160,6 +161,64 @@ module.exports = Balloon;
 
 /***/ }),
 
+/***/ "./lib/canvas_text.js":
+/*!****************************!*\
+  !*** ./lib/canvas_text.js ***!
+  \****************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+const levelText = (level) => {
+  switch (level) {
+    case 1:
+      return "Tip: Press SPACE to jump!";
+    case 2:
+      return "Tip: Press SPACE twice to double-jump!";
+    case 3:
+      return "Tip: Time your jumps carefully...";
+  }
+}
+
+const CanvasText = (info, context, score) => {
+  switch (info) {
+    case "GAME_OVER":
+      context.font = "700 60px Aclonica";
+      context.fillStyle = "pink";
+      context.fillText(`GAME OVER`, 625, 100);
+      context.strokeText(`GAME OVER`, 625, 100);
+      context.font = "700 24px Aclonica";
+      context.fillStyle = "pink";
+      context.fillText(`Press R to try again!`, 550, 150);
+      context.strokeText(`Press R to try again!`, 550, 150);
+      break;
+    case "TRANSITION":
+      context.font = "700 50px Aclonica";
+      context.fillStyle = "pink";
+      context.fillText(`LEVEL ${score.currentLevel}`, 450, 200);
+      context.strokeText(`LEVEL ${score.currentLevel}`, 450, 200);
+      context.font = "500 25px Aclonica";
+      context.fillText(`${levelText(score.currentLevel)}`, 450, 250);
+      context.strokeText(`${levelText(score.currentLevel)}`, 450, 250);
+      context.textAlign = "center";
+      break;
+    case "PAUSE":
+      context.font = "700 60px Aclonica";
+      context.fillStyle = "pink";
+      context.fillText(`PAUSED`, 575, 200);
+      context.strokeText(`PAUSED`, 575, 200);
+      context.font = "700 24px Aclonica";
+      context.fillStyle = "pink";
+      context.fillText(`Press P to resume.`, 550, 250);
+      context.strokeText(`Press P to resume.`, 550, 250);
+      break;
+  }
+}
+
+module.exports = CanvasText;
+
+
+/***/ }),
+
 /***/ "./lib/enemy.js":
 /*!**********************!*\
   !*** ./lib/enemy.js ***!
@@ -169,32 +228,25 @@ module.exports = Balloon;
 
 class Enemy {
   constructor(props) {
-    this.xPos = 950;
-    this.yPos = 250;
-    this.width = 70;
-    this.height = 70;
-    this.speed = 5;
-    this.renderCount = 0;
+    this.xPos = props.xPos;
+    this.yPos = props.yPos;
+    this.speed = props.speed;
+    this.width = 50;
+    this.height = 50;
+    this.frameCount = 0;
   }
 
-  setSprite(context) {
+  renderSprite(context) {
     context.fillStyle = "blue";
     context.fillRect(this.xPos,
       this.yPos, this.width, this.height);
   }
 
   render(context) {
-    this.setSprite(context);
+    this.renderSprite(context);
     this.xPos -= this.speed;
-    this.renderCount += 1;
+    this.frameCount += 1;
   }
-
-  // hitbox() {
-  //   return {
-  //     minX: this.xPos, maxX: this.xPos + this.width,
-  //     minY: this.yPos, maxY: this.yPos + this.height,
-  //   };
-  // }
 }
 
 module.exports = Enemy;
@@ -211,37 +263,34 @@ module.exports = Enemy;
 
 const Enemy = __webpack_require__(/*! ./enemy */ "./lib/enemy.js");
 
+const KOFFING_SPRITES = {"reg1":[0,2,36,36], "reg2":[38,2,36,36],
+  "reg3":[76,2,36,36]};
+
 class Koffing extends Enemy {
   constructor(props) {
     super(props);
-    this.xPos = props.xPos;
-    this.yPos = props.yPos;
     this.width = 70;
     this.height = 70;
-    this.speed = props.speed;
 
     this.sprites = new Image();
     this.sprites.src = './assets/images/koffing-sprites.png';
   }
 
-  setSprite(context) {
-    if (this.renderCount < 15) {
-      context.drawImage (
-        this.sprites,0,2,36,36,this.xPos,this.yPos,this.width,this.height
-      );
-    } else if (this.renderCount < 30) {
-      context.drawImage (
-        this.sprites,38,2,36,36,this.xPos,this.yPos,this.width,this.height
-      );
-    } else if (this.renderCount < 45) {
-      context.drawImage (
-        this.sprites,76,2,36,36,this.xPos,this.yPos,this.width,this.height
-      );
-    } else if (this.renderCount < 60) {
-      context.drawImage (
-        this.sprites,38,2,36,36,this.xPos,this.yPos,this.width,this.height
-      );
-      this.renderCount = 0;
+  extractSprite(context, coordinates) {
+    context.drawImage (this.sprites, coordinates[0], coordinates[1],
+      coordinates[2], coordinates[3], this.xPos, this.yPos, this.width, this.height);
+  }
+
+  renderSprite(context) {
+    if (this.frameCount < 15) {
+      this.extractSprite(context, KOFFING_SPRITES["reg1"]);
+    } else if (this.frameCount < 30) {
+      this.extractSprite(context, KOFFING_SPRITES["reg2"]);
+    } else if (this.frameCount < 45) {
+      this.extractSprite(context, KOFFING_SPRITES["reg3"]);
+    } else if (this.frameCount < 60) {
+      this.extractSprite(context, KOFFING_SPRITES["reg2"]);
+      this.frameCount = 0;
     }
   }
 }
@@ -260,13 +309,13 @@ module.exports = Koffing;
 
 const Enemy = __webpack_require__(/*! ./enemy */ "./lib/enemy.js");
 
+const MEOWTH_SPRITES = {"prep1":[2,210,39,45], "prep2":[41,210,42,45],
+  "prep3":[84,210,45,47], "attack":[298,211,40,46]};
+
 class Meowth extends Enemy {
   constructor(props) {
     super(props);
-    this.xPos = props.xPos;
     this.yPos = 280;
-    this.width = 50;
-    this.height = 50;
     this.speed = 3;
     this.attackPos = 650 + Math.floor(Math.random()*30);
 
@@ -274,33 +323,31 @@ class Meowth extends Enemy {
     this.sprites.src = './assets/images/meowth-sprites.png';
   }
 
-  setSprite(context) {
+  extractSprite(context, coordinates) {
+    context.drawImage (this.sprites, coordinates[0], coordinates[1],
+      coordinates[2], coordinates[3], this.xPos, this.yPos, this.width, this.height);
+  }
+
+  renderSprite(context) {
     if (this.xPos >= this.attackPos + 150) {
-      context.drawImage(this.sprites,2,210,39,45,this.xPos,this.yPos,this.width,this.height);
+      this.extractSprite(context, MEOWTH_SPRITES["prep1"]);
     } else if (this.xPos >= this.attackPos + 120) {
-      context.drawImage(this.sprites,41,210,42,45,this.xPos,this.yPos,this.width,this.height);
+      this.extractSprite(context, MEOWTH_SPRITES["prep2"]);
     } else if (this.xPos >= this.attackPos) {
-      context.drawImage(this.sprites,84,210,45,47,this.xPos,this.yPos,this.width,this.height);
+      this.extractSprite(context, MEOWTH_SPRITES["prep3"]);
     } else if (this.xPos < this.attackPos) {
-      context.drawImage(this.sprites,298,211,40,46,this.xPos,this.yPos,this.width,this.height);
+      this.extractSprite(context, MEOWTH_SPRITES["attack"]);
     }
   }
 
   render(context) {
-    this.setSprite(context);
-    // context.fillStyle = "blue";
-    // context.fillRect(this.xPos,
-      // this.yPos, this.width, this.height);
-    // context.drawImage(this.sprites,175,211,45,45,this.xPos,this.yPos,this.width,this.height);
     if (this.xPos > 50 && this.xPos < this.attackPos) {
       this.speed = 30;
     } else {
       this.speed = 3;
     }
-    this.xPos -= this.speed;
-    this.renderCount += 1;
+    super.render(context);
   }
-
 }
 
 module.exports = Meowth;
@@ -317,31 +364,30 @@ module.exports = Meowth;
 
 const Player = __webpack_require__(/*! ./player */ "./lib/player.js");
 const Enemy = __webpack_require__(/*! ./enemy */ "./lib/enemy.js");
-const Koffing = __webpack_require__(/*! ./enemy_koffing */ "./lib/enemy_koffing.js");
-const Meowth = __webpack_require__(/*! ./enemy_meowth */ "./lib/enemy_meowth.js");
 const Background = __webpack_require__(/*! ./background */ "./lib/background.js");
 const Ground = __webpack_require__(/*! ./ground */ "./lib/ground.js");
 const Score = __webpack_require__(/*! ./score */ "./lib/score.js");
 const Balloon = __webpack_require__(/*! ./balloon */ "./lib/balloon.js");
-const Pokeball = __webpack_require__(/*! ./pokeball */ "./lib/pokeball.js");
+const Spawn = __webpack_require__(/*! ./spawn */ "./lib/spawn.js");
+const CanvasText = __webpack_require__(/*! ./canvas_text */ "./lib/canvas_text.js");
 
 class Game {
   constructor (backgroundContext, groundContext, canvas, canvasContext) {
     this.canvas = canvas;
     this.context = canvasContext;
 
-    this.started = false;
     if (!localStorage.getItem("highscores")) {
       localStorage.setItem("highscores", JSON.stringify([]));
     }
 
     this.player = new Player({xPos: 120, yPos: 280});
 
-    this.setButtonListeners();
+    this.setKeys();
     this.setVisualAssets(backgroundContext, groundContext);
 
     this.canvas.focus();
-    this.enemies = [];
+    this.started = false;
+    this.entities = [];
     this.gameOver = false;
     this.transitioning = true;
     this.spawning = false;
@@ -357,7 +403,7 @@ class Game {
     this.playAudio.loop = true;
   }
 
-  setButtonListeners() {
+  setKeys() {
     this.canvas.addEventListener('keydown', (e) => this.jump(e));
     this.canvas.addEventListener('keydown', (e) => this.restart(e));
     this.canvas.addEventListener('keydown', (e) => this.pause(e));
@@ -374,6 +420,87 @@ class Game {
     this.balloon = new Balloon();
   }
 
+  render () {
+    if (!this.gameOver && !this.paused) {
+      requestAnimationFrame(this.render);
+      this.player.render(this.context);
+      this.handleEntities();
+
+      if (this.entities.length && this.transitioning) {
+        this.spawning = false;
+        this.score.render(this.context);
+      } else if (this.transitioning) {
+        this.spawning = false;
+        this.handleTransition();
+      } else if (!this.entities.length) {
+        this.spawning = true;
+        this.score.render(this.context);
+      } else {
+        this.score.render(this.context);
+      }
+
+      if (this.spawning) this.createSpawn();
+      if (this.score.frameCount === 700 || this.score.frameCount === 1500) {
+        this.transitioning = true;
+      }
+      this.balloon.render(this.context);
+      this.background.render();
+      this.ground.render();
+    }
+  }
+
+  handleEntities() {
+    let deleteIndex = null;
+    this.spawning = false;
+
+    this.entities.forEach((entity, i) => {
+      entity.render(this.context);
+      if (!this.player.invincible && this.player.collided(entity)) {
+        if (entity.constructor.name === "Pokeball") {
+          this.score.currentScore += entity.points;
+          deleteIndex = i;
+        } else {
+          this.stop();
+        }
+      }
+      if (entity.xPos < -100) deleteIndex = i;
+      if (i === this.entities.length - 1 && entity.xPos < 320) {
+        this.spawning = true;
+      }
+    })
+
+    if (deleteIndex !== null) this.entities.splice(deleteIndex, 1);
+  }
+
+  handleTransition() {
+    this.transitioning = true;
+    CanvasText("TRANSITION", this.context, this.score);
+    setTimeout(() => this.transitioning = false, 3000);
+  }
+
+  start() {
+    this.context.clearRect(0,0,900,400);
+    this.score = new Score();
+    this.started = true;
+    this.playAudio.currentTime = 0;
+    this.playAudio.play();
+    document.getElementById("scores-list").innerHTML = "";
+    this.render();
+  }
+
+  createSpawn() {
+    this.entities = this.entities.concat(Spawn(this.score.frameCount));
+  }
+
+  stop () {
+    CanvasText("GAME_OVER", this.context);
+    this.inputScore(this.score.currentScore);
+    this.displayHighScores();
+    this.playAudio.pause();
+    this.gameOver = true;
+  }
+
+// KEY LISTENERS
   jump (e) {
     if (e.code === 'Space' && !this.gameOver) {
       e.preventDefault();
@@ -384,181 +511,21 @@ class Game {
   restart(e) {
     if (e.code === 'KeyR') {
       e.preventDefault();
-
       this.player = new Player({xPos: 120, yPos: 280});
-      this.enemies = [];
+      this.entities = [];
       this.gameOver = false;
       this.transitioning = true;
       this.spawning = false;
-
       document.getElementById("leaderboard").classList.add("hidden");
-
       this.start();
     }
-  }
-
-  render () {
-    if (!this.gameOver && !this.paused) {
-      requestAnimationFrame(this.render);
-      this.player.render(this.context);
-
-      this.handleEnemies();
-
-      if (this.enemies.length && this.transitioning) {
-        this.spawning = false;
-        this.score.render(this.context);
-      } else if (this.transitioning) {
-        this.spawning = false;
-        this.handleTransition();
-      } else if (!this.enemies.length) {
-        this.spawning = true;
-        this.score.render(this.context);
-      } else {
-        this.score.render(this.context);
-      }
-
-      if (this.spawning) {
-        this.createEnemy();
-      }
-
-      if (this.score.frameCount === 700 || this.score.frameCount === 1500) {
-        this.transitioning = true;
-      }
-
-      this.balloon.render(this.context);
-      this.background.render();
-      this.ground.render();
-
-    }
-  }
-
-
-  handleEnemies() {
-    let deleteIndex = null;
-    this.spawning = false;
-
-    this.enemies.forEach((enemy, i) => {
-      enemy.render(this.context);
-      if (!this.player.invincible && this.player.collided(enemy)) {
-        if (enemy.constructor.name === "Pokeball") {
-          this.score.currentScore += enemy.points;
-          deleteIndex = i;
-        } else {
-          this.stop();
-        }
-      }
-      if (enemy.xPos < -100) {
-        deleteIndex = i;
-      }
-      if (i === this.enemies.length - 1 && enemy.xPos < 320) {
-        this.spawning = true;
-      }
-    })
-
-    if (deleteIndex !== null) {
-      this.enemies.splice(deleteIndex, 1);
-    }
-  }
-
-  displayText () {
-    this.context.font = "700 50px Aclonica";
-    this.context.fillStyle = "pink";
-    this.context.fillText(`LEVEL ${this.score.currentLevel}`, 450, 200);
-    this.context.strokeText(`LEVEL ${this.score.currentLevel}`, 450, 200);
-    this.context.font = "500 25px Aclonica";
-    this.context.fillText(`${this.levelText(this.score.currentLevel)}`, 450, 250);
-    this.context.strokeText(`${this.levelText(this.score.currentLevel)}`, 450, 250);
-    this.context.textAlign = "center";
-  }
-
-  levelText (level) {
-    switch (level) {
-      case 1:
-        return "Tip: Press SPACE to jump!";
-      case 2:
-        return "Tip: Press SPACE twice to double-jump!";
-      case 3:
-        return "Tip: Time your jumps carefully...";
-    }
-  }
-
-  handleTransition() {
-    this.transitioning = true;
-    this.displayText();
-    setTimeout(() => this.transitioning = false, 3000);
-  }
-
-  start() {
-    this.context.clearRect(0,0,900,400);
-    this.score = new Score();
-    this.started = true;
-    this.playAudio.currentTime = 0;
-    this.playAudio.play();
-
-    document.getElementById("scores-list").innerHTML = "";
-
-    this.render();
-  }
-
-  createEnemy() {
-    const randXPos = Math.floor(Math.random() * 50) + 950;
-    const generator = Math.random();
-    if (this.score.frameCount < 350) {
-      if (generator < 0.65) {
-        this.enemies.push(new Pokeball({xPos: randXPos, yPos: 300}));
-        this.enemies.push(new Koffing({speed: 5, xPos: randXPos + 200, yPos: 250}));
-      } else {
-        this.enemies.push(new Koffing({speed: 5, xPos: randXPos, yPos: 250}));
-      }
-    } else if (this.score.frameCount <= 700) {
-      if (generator < 0.25) {
-        this.enemies.push(new Koffing({speed: 5, xPos: randXPos + 200, yPos: 250}));
-        this.enemies.push(new Pokeball({xPos: randXPos, yPos: 300}))
-      } else if (generator < 0.75) {
-        this.enemies.push(new Meowth({xPos: randXPos}));
-      } else {
-        this.enemies.push(new Meowth({xPos: randXPos + 100}))
-        this.enemies.push(new Pokeball({xPos: randXPos, yPos: 200}))
-      }
-    } else if (this.score.frameCount <= 1000) {
-      if (generator < 0.3) {
-        this.enemies.push(new Koffing({speed: 6.5, xPos: randXPos + 200, yPos: 250}));
-        this.enemies.push(new Pokeball({xPos: randXPos, yPos: 200}))
-      } else if (generator < 0.6) {
-        this.enemies.push(new Meowth({xPos: randXPos}));
-      } else {
-        this.enemies.push(new Koffing({speed: 6.5, xPos: randXPos, yPos: 250}));
-        this.enemies.push(new Koffing({speed: 6.5, xPos: randXPos, yPos: 180}));
-      }
-    } else {
-      if (generator < 0.2) {
-        this.enemies.push(new Koffing({speed: 7, xPos: randXPos + 200, yPos: 250}));
-        this.enemies.push(new Pokeball({xPos: randXPos, yPos: 300}))
-      } else if (generator < 0.4) {
-        this.enemies.push(new Meowth({xPos: randXPos}));
-      } else if (generator < 0.7) {
-        this.enemies.push(new Koffing({speed: 7, xPos: randXPos, yPos: 250}));
-        this.enemies.push(new Koffing({speed: 7, xPos: randXPos, yPos: 180}));
-      } else {
-        this.enemies.push(new Koffing({speed: 7, xPos: randXPos, yPos: 180}));
-        this.enemies.push(new Meowth({xPos: randXPos - 20}));
-      }
-    }
-
   }
 
   pause(e) {
     if (!this.paused && !this.gameOver && !this.transitioning && e.code === 'KeyP') {
       e.preventDefault();
+      CanvasText("PAUSE", this.context)
       this.paused = true;
-      this.context.font = "700 60px Aclonica";
-      this.context.fillStyle = "pink";
-      this.context.fillText(`PAUSED`, 575, 200);
-      this.context.strokeText(`PAUSED`, 575, 200);
-      this.context.font = "700 24px Aclonica";
-      this.context.fillStyle = "pink";
-      this.context.fillText(`Press P to resume.`, 550, 250);
-      this.context.strokeText(`Press P to resume.`, 550, 250);
       this.playAudio.pause();
     } else if (this.paused && e.code === 'KeyP') {
         e.preventDefault();
@@ -573,35 +540,17 @@ class Game {
       e.preventDefault();
       this.playAudio.muted = !this.playAudio.muted;
       this.player.jumpFX.muted = !this.player.jumpFX.muted;
+      this.player.doubleJumpFX.muted = !this.player.doubleJumpFX.muted;
     }
   }
 
-  stop () {
-    this.context.font = "700 60px Aclonica";
-    this.context.fillStyle = "pink";
-    this.context.fillText(`GAME OVER`, 625, 100);
-    this.context.strokeText(`GAME OVER`, 625, 100);
-    this.context.font = "700 24px Aclonica";
-    this.context.fillStyle = "pink";
-    this.context.fillText(`Press R to try again!`, 550, 150);
-    this.context.strokeText(`Press R to try again!`, 550, 150);
-
-    this.inputScore(this.score.currentScore);
-    this.displayHighScores();
-
-    this.playAudio.pause();
-    this.gameOver = true;
-  }
-
+// HIGH SCORES
   inputScore(score) {
     let highScores = JSON.parse(localStorage.getItem("highscores"));
     highScores.push(score);
     highScores.sort(function(a,b) { return (b - a ) });
 
-    if (highScores.length > 5) {
-      highScores = highScores.slice(0,5);
-    }
-
+    if (highScores.length > 5) highScores = highScores.slice(0,5);
     localStorage.setItem("highscores", JSON.stringify(highScores));
   }
 
@@ -631,6 +580,9 @@ module.exports = Game;
 /*! no static exports found */
 /***/ (function(module, exports) {
 
+const CANVAS_HEIGHT = 400;
+const CANVAS_WIDTH = 900;
+
 class Ground {
   constructor(context, src) {
     this.src = src;
@@ -640,14 +592,12 @@ class Ground {
   }
 
   render () {
-    const canvWidth = 900;
-    const canvHeight = 400;
-    this.context.clearRect(0, 0, canvWidth, canvHeight);
-    this.context.drawImage(this.src,15,0,1170,800,this.xPos,-100,canvWidth,canvHeight+100);
-    this.context.drawImage(this.src,15,0,1170,800,this.xPos + canvWidth,-100,canvWidth,canvHeight+100);
-    if (this.xPos <= -canvWidth) {
-      this.xPos = 0;
-    }
+    this.context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    this.context.drawImage(this.src,15,0,1170,800,
+      this.xPos,-100,CANVAS_WIDTH,CANVAS_HEIGHT+100);
+    this.context.drawImage(this.src,15,0,1170,800,
+      this.xPos + CANVAS_WIDTH,-100,CANVAS_WIDTH,CANVAS_HEIGHT+100);
+    if (this.xPos <= -CANVAS_WIDTH) this.xPos = 0;
     this.xPos -= this.speed;
   }
 }
@@ -673,14 +623,16 @@ class Item {
     this.speed = 3;
   }
 
-  render(context) {
+  setSprite(context) {
     context.fillStyle = "green";
     context.fillRect(this.xPos,
       this.yPos, this.width, this.height);
-    this.xPos -= this.speed;
   }
 
-
+  render(context) {
+    this.setSprite(context);
+    this.xPos -= this.speed;
+  }
 }
 
 module.exports = Item;
@@ -696,6 +648,8 @@ module.exports = Item;
 /***/ (function(module, exports, __webpack_require__) {
 
 const Game = __webpack_require__(/*! ./game.js */ "./lib/game.js");
+const Modal = __webpack_require__(/*! ./modal.js */ "./lib/modal.js");
+
 
 document.addEventListener('DOMContentLoaded', ()=> {
   const canvas = document.getElementById('canvas');
@@ -712,36 +666,49 @@ document.addEventListener('DOMContentLoaded', ()=> {
     canvasContext,
   );
 
+  Modal(canvas);
+
+  canvas.addEventListener('mousedown', () => {
+    const titleScreen = document.getElementById('title-screen');
+    titleScreen.classList.add('hidden');
+    if (!game.started) game.start();
+  });
+
+});
+
+
+/***/ }),
+
+/***/ "./lib/modal.js":
+/*!**********************!*\
+  !*** ./lib/modal.js ***!
+  \**********************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+const Modal = (canvas) => {
   const modal = document.getElementById('myModal');
   const openModal = document.getElementById("open-modal");
   const exitButton = document.getElementById("modal-close");
 
   openModal.onclick = () => {
-      modal.style.display = "block";
+    modal.style.display = "block";
   }
 
   exitButton.onclick = () => {
-      modal.style.display = "none";
-      canvas.focus();
+    modal.style.display = "none";
+    canvas.focus();
   }
 
   window.onclick = (e) => {
-      if (e.target == modal) {
-          modal.style.display = "none";
-          canvas.focus();
-      }
+    if (e.target == modal) {
+      modal.style.display = "none";
+      canvas.focus();
+    }
   }
+}
 
-
-
-
-canvas.addEventListener('mousedown', () => {
-    const titleScreen = document.getElementById('title-screen');
-    titleScreen.classList.add('hidden');
-    if (!game.started) game.start();
-  })
-
-});
+module.exports = Modal;
 
 
 /***/ }),
@@ -752,6 +719,12 @@ canvas.addEventListener('mousedown', () => {
   \***********************/
 /*! no static exports found */
 /***/ (function(module, exports) {
+
+const GRAVITY = 0.25;
+const GROUND_YPOS = 290;
+const SPRITES = {"fall": [125,6,26,26], "jump":[160,5,26,26],
+  "walk1":[281,5,26,26], "walk2": [252,5,26,26], "walk3": [223,5,26,26],
+  "walk4":[195,5,26,26]};
 
 class Player {
   constructor(props) {
@@ -764,19 +737,19 @@ class Player {
     this.doubleJumping = false;
     this.invincible = false;
     this.jumpFX = new Audio('./assets/audio/jump_02.wav');
+    this.doubleJumpFX = new Audio('./assets/audio/jump_02.wav');
     this.sprites = new Image();
     this.sprites.src = './assets/images/jigglypuff-sprites.png';
-    this.renderCount = 0;
+    this.frameCount = 0;
   }
 
-  jump() {
-    const gravity = 0.25;
+  renderJump() {
     if (this.jumping) {
-      if (this.yPos === 290 || this.yPos < 290) {
-        this.vel += gravity;
+      if (this.yPos <= GROUND_YPOS) {
+        this.vel += GRAVITY;
         this.yPos += this.vel;
       } else {
-        this.yPos = 290;
+        this.yPos = GROUND_YPOS;
         this.vel = 0;
         this.jumping = false;
         this.doubleJumping = false;
@@ -787,60 +760,51 @@ class Player {
   setJumpVel() {
     if (!this.jumping) {
       this.jumping = true;
-      this.vel = -7.3;
+      this.vel = -7;
       this.jumpFX.play();
     } else if (!this.doubleJumping) {
       this.doubleJumping = true;
-      this.vel = -7;
-      this.jumpFX.play();
+      this.vel = -6.8;
+      this.doubleJumpFX.play();
     }
   }
 
-  setSprite(context) {
+  extractSprite(context, coordinates) {
+    context.drawImage(this.sprites, coordinates[0], coordinates[1],
+      coordinates[2], coordinates[3], this.xPos, this.yPos,
+      this.width, this.height);
+  }
+
+  renderSprite(context) {
     const frames = 9;
     if (this.vel > 0) {
-      context.drawImage (
-        this.sprites,125,6,26,26,this.xPos,this.yPos,this.width,this.height
-      );
-      this.renderCount = 0;
+      this.extractSprite(context, SPRITES["fall"]);
+      this.frameCount = 0;
     } else if (this.jumping) {
-      context.drawImage (
-        this.sprites,160,5,26,26,this.xPos,this.yPos,this.width,this.height
-      );
-      this.renderCount = 0;
-    } else if (this.renderCount < frames*1) {
-      context.drawImage (
-        this.sprites,281,5,26,26,this.xPos,this.yPos,this.width,this.height
-      );
-    } else if (this.renderCount < frames*2) {
-      context.drawImage (
-        this.sprites,252,5,26,26,this.xPos,this.yPos,this.width,this.height
-      );
-    } else if (this.renderCount < frames*3) {
-      context.drawImage (
-        this.sprites,223,5,26,26,this.xPos,this.yPos,this.width,this.height
-      );
-    } else if (this.renderCount < frames*4) {
-      context.drawImage (
-        this.sprites,195,5,26,26,this.xPos,this.yPos,this.width,this.height
-      );
-    } else if (this.renderCount < frames*5) {
-      context.drawImage (
-        this.sprites,252,5,26,26,this.xPos,this.yPos,this.width,this.height
-      );
-    } else if (this.renderCount < frames*6) {
-      context.drawImage (
-        this.sprites,223,5,26,26,this.xPos,this.yPos,this.width,this.height
-      );
-      this.renderCount = 0;
+      this.extractSprite(context, SPRITES["jump"]);
+      this.frameCount = 0;
+
+    } else if (this.frameCount < frames*1) {
+      this.extractSprite(context, SPRITES["walk1"]);
+    } else if (this.frameCount < frames*2) {
+      this.extractSprite(context, SPRITES["walk2"]);
+    } else if (this.frameCount < frames*3) {
+      this.extractSprite(context, SPRITES["walk3"]);
+    } else if (this.frameCount < frames*4) {
+      this.extractSprite(context, SPRITES["walk4"]);
+    } else if (this.frameCount < frames*5) {
+      this.extractSprite(context, SPRITES["walk3"]);
+    } else if (this.frameCount < frames*6) {
+      this.extractSprite(context, SPRITES["walk2"]);
+      this.frameCount = 0;
     }
   }
 
   render (context) {
     context.clearRect(0,0,900,400);
-    this.setSprite(context);
-    this.jump();
-    this.renderCount += 1;
+    this.renderSprite(context);
+    this.renderJump();
+    this.frameCount += 1;
   }
 
   collided (object) {
@@ -848,26 +812,12 @@ class Player {
     const playerCenterY = this.yPos + this.height/2;
     const objectCenterX = object.xPos + object.width/2;
     const objectCenterY = object.yPos + object.height/2;
+
     const dx = playerCenterX - objectCenterX;
     const dy = playerCenterY - objectCenterY;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    return dist < (this.width-8)/2 + (object.width-8)/2;
-    // return !(
-    //   this.hitbox().maxX < object.hitbox().minX ||
-    //   this.hitbox().minX > object.hitbox().maxX ||
-    //   this.hitbox().maxY < object.hitbox().minY ||
-    //   this.hitbox().minY > object.hitbox().maxY
-    // );
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    return distance < (this.width-8)/2 + (object.width-8)/2;
   }
-
-  // hitbox() {
-  //   return {
-  //     minX: this.xPos,
-  //     maxX: this.xPos + this.width,
-  //     minY: this.yPos,
-  //     maxY: this.yPos + this.height,
-  //   };
-  // }
 }
 
 module.exports = Player;
@@ -894,13 +844,8 @@ class Pokeball extends Item {
   }
 
   setSprite(context) {
-    context.drawImage(this.sprites, 0, 0, 1024, 1024, this.xPos, this.yPos, this.width, this.height);
-
-  }
-
-  render (context) {
-    this.setSprite(context);
-    this.xPos -= this.speed;
+    context.drawImage(this.sprites, 0, 0, 1024, 1024,
+      this.xPos, this.yPos, this.width, this.height);
   }
 }
 
@@ -923,7 +868,7 @@ class Score {
     this.currentLevel = 1;
   }
 
-  render (context) {
+  display(context) {
     context.font = "24px Aclonica";
     context.fillStyle = "white";
     context.strokeStyle = "black";
@@ -932,7 +877,10 @@ class Score {
     context.textAlign = "end";
     context.fillText("LEVEL " + this.currentLevel, 150, 35);
     context.strokeText("LEVEL " + this.currentLevel, 150, 35);
+  }
 
+  render (context) {
+    this.display(context);
     this.update();
     this.levelcheck();
   }
@@ -952,6 +900,95 @@ class Score {
 }
 
 module.exports = Score;
+
+
+/***/ }),
+
+/***/ "./lib/spawn.js":
+/*!**********************!*\
+  !*** ./lib/spawn.js ***!
+  \**********************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+const Koffing = __webpack_require__(/*! ./enemy_koffing */ "./lib/enemy_koffing.js");
+const Meowth = __webpack_require__(/*! ./enemy_meowth */ "./lib/enemy_meowth.js");
+const Pokeball = __webpack_require__(/*! ./pokeball */ "./lib/pokeball.js");
+
+const Spawn = (level) => {
+  const randXPos = Math.floor(Math.random() * 50) + 950;
+  const generator = Math.random();
+  // Level 1A
+  if (level < 350) {
+    if (generator < 0.65) {
+      return [
+        new Pokeball({xPos: randXPos, yPos: 300}),
+        new Koffing({speed: 5, xPos: randXPos + 200, yPos: 250})
+      ];
+    } else {
+      return [
+        new Koffing({speed: 5, xPos: randXPos, yPos: 250})
+      ];
+    }
+  // Level 1B
+  } else if (level <= 700) {
+    if (generator < 0.25) {
+      return [
+        new Koffing({speed: 5, xPos: randXPos + 200, yPos: 250}),
+        new Pokeball({xPos: randXPos, yPos: 300})
+      ];
+    } else if (generator < 0.75) {
+      return [
+        new Meowth({xPos: randXPos})
+      ];
+    } else {
+      return [
+        new Meowth({xPos: randXPos + 100}),
+        new Pokeball({xPos: randXPos, yPos: 200})
+      ];
+    }
+  // Level 2A
+  } else if (level <= 1000) {
+    if (generator < 0.3) {
+      return [
+        new Koffing({speed: 6.5, xPos: randXPos + 100, yPos: 250}),
+        new Pokeball({xPos: randXPos, yPos: 200})
+      ];
+    } else if (generator < 0.6) {
+      return [
+        new Meowth({xPos: randXPos})
+      ];
+    } else {
+      return [
+        new Koffing({speed: 6.5, xPos: randXPos, yPos: 250}),
+        new Koffing({speed: 6.5, xPos: randXPos, yPos: 180})
+      ];
+    }
+  } else {
+    if (generator < 0.2) {
+      return [
+        new Koffing({speed: 7, xPos: randXPos + 200, yPos: 250}),
+        new Pokeball({xPos: randXPos, yPos: 300})
+      ];
+    } else if (generator < 0.4) {
+      return [
+        new Meowth({xPos: randXPos})
+      ]
+    } else if (generator < 0.7) {
+      return [
+        new Koffing({speed: 7, xPos: randXPos, yPos: 250}),
+        new Koffing({speed: 7, xPos: randXPos, yPos: 180})
+      ];
+    } else {
+      return [
+        new Koffing({speed: 7, xPos: randXPos, yPos: 180}),
+        new Meowth({xPos: randXPos - 20})
+      ]
+    }
+  }
+}
+
+module.exports = Spawn;
 
 
 /***/ })
