@@ -96,20 +96,64 @@
 const CANVAS_HEIGHT = 400;
 const CANVAS_WIDTH = 900;
 
+const FAR_BG = {
+  speed: 0.6,
+  src: './assets/images/winter1.png',
+  imgCoord: [3,120,1794,773],
+  canvasCoord1: [null, 0, CANVAS_WIDTH, CANVAS_HEIGHT],
+  canvasCoord2: [null, 0, CANVAS_WIDTH, CANVAS_HEIGHT]
+}
+
+const NEAR_BG = {
+  speed: 3,
+  src: './assets/images/snow_houses.png',
+  imgCoord: [15,0,1170,800],
+  canvasCoord1: [null, -100, CANVAS_WIDTH, CANVAS_HEIGHT + 100],
+  canvasCoord2: [null, -100, CANVAS_WIDTH, CANVAS_HEIGHT + 100]
+}
+
 class Background {
-  constructor(context, src) {
-    this.src = src;
-    this.speed = 0.6;
+  constructor(context, description) {
+    this.options = description === "far" ? FAR_BG : NEAR_BG;
+    this.speed = this.options["speed"];
     this.xPos = 0;
     this.context = context;
+
+    this.img = new Image();
+    this.img.src = this.options["src"];
+    this.draw = this.draw.bind(this);
+  }
+
+  draw() {
+    this.context.drawImage (
+      this.img,
+      this.options["imgCoord"][0],
+      this.options["imgCoord"][1],
+      this.options["imgCoord"][2],
+      this.options["imgCoord"][3],
+      this.options["canvasCoord1"][0],
+      this.options["canvasCoord1"][1],
+      this.options["canvasCoord1"][2],
+      this.options["canvasCoord1"][3]
+    );
+    this.context.drawImage (
+      this.img,
+      this.options["imgCoord"][0],
+      this.options["imgCoord"][1],
+      this.options["imgCoord"][2],
+      this.options["imgCoord"][3],
+      this.options["canvasCoord2"][0],
+      this.options["canvasCoord2"][1],
+      this.options["canvasCoord2"][2],
+      this.options["canvasCoord2"][3]
+    );
   }
 
   render () {
     this.context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    this.context.drawImage(this.src,3,120,1794,773,
-      this.xPos,0,CANVAS_WIDTH,CANVAS_HEIGHT);
-    this.context.drawImage(this.src,3,120,1794,773,
-      this.xPos + CANVAS_WIDTH,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+    this.options["canvasCoord1"][0] = this.xPos;
+    this.options["canvasCoord2"][0] = this.xPos + CANVAS_WIDTH;
+    this.draw();
     if (this.xPos <= -CANVAS_WIDTH) this.xPos = 0;
     this.xPos -= this.speed;
   }
@@ -365,7 +409,6 @@ module.exports = Meowth;
 const Player = __webpack_require__(/*! ./player */ "./lib/player.js");
 const Enemy = __webpack_require__(/*! ./enemy */ "./lib/enemy.js");
 const Background = __webpack_require__(/*! ./background */ "./lib/background.js");
-const Ground = __webpack_require__(/*! ./ground */ "./lib/ground.js");
 const Score = __webpack_require__(/*! ./score */ "./lib/score.js");
 const Balloon = __webpack_require__(/*! ./balloon */ "./lib/balloon.js");
 const Spawn = __webpack_require__(/*! ./spawn */ "./lib/spawn.js");
@@ -411,13 +454,19 @@ class Game {
   }
 
   setVisualAssets(backgroundContext, groundContext) {
-    const bg = new Image();
-    bg.src = './assets/images/winter1.png';
-    const ground = new Image();
-    ground.src = './assets/images/snow_houses.png'
-    this.background = new Background(backgroundContext, bg);
-    this.ground = new Ground(groundContext, ground);
+    this.background = new Background(backgroundContext, "far");
+    this.ground = new Background(groundContext, "near");
     this.balloon = new Balloon();
+  }
+
+  start() {
+    this.context.clearRect(0,0,900,400);
+    this.score = new Score();
+    this.started = true;
+    this.playAudio.currentTime = 0;
+    this.playAudio.play();
+    document.getElementById("scores-list").innerHTML = "";
+    this.render();
   }
 
   render () {
@@ -450,7 +499,7 @@ class Game {
   }
 
   handleEntities() {
-    let deleteIndex = null;
+    let outIndex = null;
     this.spawning = false;
 
     this.entities.forEach((entity, i) => {
@@ -458,18 +507,18 @@ class Game {
       if (!this.player.invincible && this.player.collided(entity)) {
         if (entity.constructor.name === "Pokeball") {
           this.score.currentScore += entity.points;
-          deleteIndex = i;
+          outIndex = i;
         } else {
-          this.stop();
+          this.end();
         }
       }
-      if (entity.xPos < -100) deleteIndex = i;
-      if (i === this.entities.length - 1 && entity.xPos < 320) {
+      if (entity.xPos < -100) outIndex = i;
+      if (i === this.entities.length - 1 && entity.xPos < 350) {
         this.spawning = true;
       }
     })
 
-    if (deleteIndex !== null) this.entities.splice(deleteIndex, 1);
+    if (outIndex !== null) this.entities.splice(outIndex, 1);
   }
 
   handleTransition() {
@@ -478,21 +527,11 @@ class Game {
     setTimeout(() => this.transitioning = false, 3000);
   }
 
-  start() {
-    this.context.clearRect(0,0,900,400);
-    this.score = new Score();
-    this.started = true;
-    this.playAudio.currentTime = 0;
-    this.playAudio.play();
-    document.getElementById("scores-list").innerHTML = "";
-    this.render();
-  }
-
   createSpawn() {
     this.entities = this.entities.concat(Spawn(this.score.frameCount));
   }
 
-  stop () {
+  end () {
     CanvasText("GAME_OVER", this.context);
     this.inputScore(this.score.currentScore);
     this.displayHighScores();
@@ -569,40 +608,6 @@ class Game {
 }
 
 module.exports = Game;
-
-
-/***/ }),
-
-/***/ "./lib/ground.js":
-/*!***********************!*\
-  !*** ./lib/ground.js ***!
-  \***********************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-const CANVAS_HEIGHT = 400;
-const CANVAS_WIDTH = 900;
-
-class Ground {
-  constructor(context, src) {
-    this.src = src;
-    this.speed = 3;
-    this.xPos = 0;
-    this.context = context;
-  }
-
-  render () {
-    this.context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-    this.context.drawImage(this.src,15,0,1170,800,
-      this.xPos,-100,CANVAS_WIDTH,CANVAS_HEIGHT+100);
-    this.context.drawImage(this.src,15,0,1170,800,
-      this.xPos + CANVAS_WIDTH,-100,CANVAS_WIDTH,CANVAS_HEIGHT+100);
-    if (this.xPos <= -CANVAS_WIDTH) this.xPos = 0;
-    this.xPos -= this.speed;
-  }
-}
-
-module.exports = Ground;
 
 
 /***/ }),
