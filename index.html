@@ -19,13 +19,22 @@
       <canvas id="canvas" width="900" height="400" tabindex="1"></canvas>
       <canvas id="ground" width="900" height="400" ></canvas>
       <canvas id="background" width="900" height="400"></canvas>
-    </div>
-    <div id="leaderboard" class="hidden">
-      <h1>YOUR HIGH SCORES</h1>
-      <ul id="scores-list">
+      <div id="leaderboard" class="hidden">
+        <h1>YOUR HIGH SCORES</h1>
+        <ul id="scores-list">
 
-      </ul>
+        </ul>
+      </div>
+      <div id="settings-disp">
+        <section id="pause-disp" class="hidden">PAUSED</section>
+        <section id="mute-disp" class="hidden">MUTED</section>
+      </div>
+      <div id="gameover-disp" class="hidden">
+        <h1>GAME OVER</h1>
+        <h2>Press R to try again!</h2>
+      </div>
     </div>
+
 
     <script type="text/javascript" src="./dist/bundle.js"></script>
 
@@ -36,7 +45,7 @@
         <section id="modal-close">&times;</section>
         <h1>How to Play</h1>
         <ul>
-          <li>Avoid enemies like Koffing and Meowth by pressing SPACE to jump!</li>
+          <li>Avoid enemies Pokemon by pressing SPACE to jump!</li>
           <li>Collect PokeBalls to obtain bonus points! <img src="assets/images/pokeball.png"/></li>
         </ul>
       </div>
@@ -44,15 +53,18 @@
     </section>
 
     <footer>
-      <section>
+      <button id="open-modal">How to Play</button>
+      <section class="links">
         <h2>Created by: <a href="https://kokokola694.github.io/">Michael Ko</a></h2>
         <div>
           <a href="https://github.com/kokokola694"><i class="fa fa-github" style="font-size:50px"></i></a>
           <a href="https://www.linkedin.com/in/michael-ko-7bb503b1/"><i class="fa fa-linkedin-square" style="font-size:50px"></i></a>
         </div>
       </section>
-      <button id="open-modal">How to Play</button>
-
+      <section class="footer-buttons">
+        <button id="pause-btn">Pause (P)</button>
+        <button id="mute-btn">Mute/Unmute (M)</button>
+      </section>
     </footer>
 
   </body>

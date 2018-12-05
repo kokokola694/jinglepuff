@@ -43,6 +43,8 @@ body {
   background-color: pink;
   box-sizing: border-box;
   border-radius: 10px;
+  opacity: 0.85;
+  border: 1.5px solid white;
 }
 
 #leaderboard h1 {
@@ -63,6 +65,47 @@ body {
 
 #scores-list li {
   margin: 5px 0;
+}
+
+#settings-disp {
+  position: absolute;
+  top: 200px;
+  bottom:0;
+  right:0;left:0;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100px;
+  height: 50px;
+  text-align: center;
+  color: pink;
+}
+
+#gameover-disp {
+  position: absolute;
+  top: 250px;
+  bottom:0;
+  right:0;left:0;
+  margin-left: auto;
+  margin-right: auto;
+  width: 450px;
+  height: 100px;
+  text-align: center;
+  color: pink;
+}
+
+#gameover-disp h1 {
+  font-size: 50px;
+  margin-bottom: 10px;
+  -webkit-text-stroke: 1px black;
+}
+
+#gameover-disp h2 {
+  font-size: 25px;
+  -webkit-text-stroke: 1px black;
+}
+
+.selected {
+  color: pink;
 }
 
 .blinking{
@@ -102,6 +145,10 @@ body {
   display: none;
 }
 
+.highscore {
+  color: teal;
+}
+
 footer i {
   font-size: 50px;
 }
@@ -135,9 +182,25 @@ footer {
   background: linear-gradient(white, #dde8f0);
 }
 
-footer section div {
+.links div {
   display: flex;
   margin-top: 10px;
   justify-content: space-around;
   width: 100%;
+}
+
+.footer-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.footer-buttons button {
+  margin: 10px 0;
+}
+
+.footer-buttons button:hover {
+  color: pink;
 }

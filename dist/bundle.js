@@ -225,16 +225,6 @@ const levelText = (level) => {
 
 const CanvasText = (info, context, score) => {
   switch (info) {
-    case "GAME_OVER":
-      context.font = "700 60px Aclonica";
-      context.fillStyle = "pink";
-      context.fillText(`GAME OVER`, 625, 100);
-      context.strokeText(`GAME OVER`, 625, 100);
-      context.font = "700 24px Aclonica";
-      context.fillStyle = "pink";
-      context.fillText(`Press R to try again!`, 550, 150);
-      context.strokeText(`Press R to try again!`, 550, 150);
-      break;
     case "TRANSITION":
       context.font = "700 50px Aclonica";
       context.fillStyle = "pink";
@@ -244,16 +234,6 @@ const CanvasText = (info, context, score) => {
       context.fillText(`${levelText(score.currentLevel)}`, 450, 250);
       context.strokeText(`${levelText(score.currentLevel)}`, 450, 250);
       context.textAlign = "center";
-      break;
-    case "PAUSE":
-      context.font = "700 60px Aclonica";
-      context.fillStyle = "pink";
-      context.fillText(`PAUSED`, 575, 200);
-      context.strokeText(`PAUSED`, 575, 200);
-      context.font = "700 24px Aclonica";
-      context.fillStyle = "pink";
-      context.fillText(`Press P to resume.`, 550, 250);
-      context.strokeText(`Press P to resume.`, 550, 250);
       break;
   }
 }
@@ -419,7 +399,7 @@ class Game {
     this.canvas = canvas;
     this.context = canvasContext;
 
-    if (!localStorage.getItem("highscores")) {
+    if (!(JSON.parse(localStorage.getItem("highscores")) instanceof Array)) {
       localStorage.setItem("highscores", JSON.stringify([]));
     }
 
@@ -460,6 +440,7 @@ class Game {
   }
 
   start() {
+    document.getElementById("gameover-disp").classList.add("hidden");
     this.context.clearRect(0,0,900,400);
     this.score = new Score();
     this.started = true;
@@ -532,7 +513,7 @@ class Game {
   }
 
   end () {
-    CanvasText("GAME_OVER", this.context);
+    document.getElementById("gameover-disp").classList.remove("hidden");
     this.inputScore(this.score.currentScore);
     this.displayHighScores();
     this.playAudio.pause();
@@ -541,7 +522,7 @@ class Game {
 
 // KEY LISTENERS
   jump (e) {
-    if (e.code === 'Space' && !this.gameOver) {
+    if (e.code === 'Space' && !this.gameOver && this.started) {
       e.preventDefault();
       this.player.setJumpVel();
     }
@@ -550,7 +531,7 @@ class Game {
   restart(e) {
     if (e.code === 'KeyR') {
       e.preventDefault();
-      this.player = new Player({xPos: 120, yPos: 280});
+      this.player.yPos = 280;
       this.entities = [];
       this.gameOver = false;
       this.transitioning = true;
@@ -561,25 +542,37 @@ class Game {
   }
 
   pause(e) {
-    if (!this.paused && !this.gameOver && !this.transitioning && e.code === 'KeyP') {
-      e.preventDefault();
-      CanvasText("PAUSE", this.context)
+    if (!this.paused && !this.gameOver && this.started && (e.code === 'KeyP' || e === "button")) {
+      if (e !== "button") e.preventDefault();
       this.paused = true;
       this.playAudio.pause();
-    } else if (this.paused && e.code === 'KeyP') {
-        e.preventDefault();
+      document.getElementById("pause-disp").classList.remove("hidden");
+      document.getElementById("pause-btn").classList.add("selected");
+    } else if (this.paused && this.started && (e.code === 'KeyP' || e === "button")) {
+        if (e !== "button") e.preventDefault();
         this.paused = false;
         this.playAudio.play();
+        document.getElementById("pause-disp").classList.add("hidden");
+        document.getElementById("pause-btn").classList.remove("selected");
         this.render();
     }
   }
 
   mute(e) {
-    if (e.code === 'KeyM') {
-      e.preventDefault();
+    if (e.code === 'KeyM' || e === "button") {
+      if (e !== "button") e.preventDefault();
       this.playAudio.muted = !this.playAudio.muted;
       this.player.jumpFX.muted = !this.player.jumpFX.muted;
       this.player.doubleJumpFX.muted = !this.player.doubleJumpFX.muted;
+
+      if (this.playAudio.muted) {
+        document.getElementById("mute-disp").classList.remove("hidden");
+        document.getElementById("mute-btn").classList.add("selected");
+      } else {
+        document.getElementById("mute-disp").classList.add("hidden");
+        document.getElementById("mute-btn").classList.remove("selected");
+      }
+
     }
   }
 
@@ -597,11 +590,15 @@ class Game {
     let highScores = JSON.parse(localStorage.getItem("highscores"));
     const leaderboard = document.getElementById("leaderboard");
     leaderboard.classList.remove("hidden");
-
+    let highlighted = false;
     highScores.forEach((score,i) => {
       const li = document.createElement("LI");
       const text = document.createTextNode(score);
       li.appendChild(text);
+      if (score === this.score.currentScore && !highlighted) {
+        li.classList.add("highscore");
+        highlighted = true;
+      }
       document.getElementById("scores-list").appendChild(li);
     })
   }
@@ -653,8 +650,6 @@ module.exports = Item;
 /***/ (function(module, exports, __webpack_require__) {
 
 const Game = __webpack_require__(/*! ./game.js */ "./lib/game.js");
-const Modal = __webpack_require__(/*! ./modal.js */ "./lib/modal.js");
-
 
 document.addEventListener('DOMContentLoaded', ()=> {
   const canvas = document.getElementById('canvas');
@@ -664,6 +659,13 @@ document.addEventListener('DOMContentLoaded', ()=> {
   const ground = document.getElementById('ground');
   const groundContext = ground.getContext('2d');
 
+  const muteButton = document.getElementById('mute-btn');
+  const pauseButton = document.getElementById('pause-btn');
+
+  const openModal = document.getElementById("open-modal");
+  const modal = document.getElementById('myModal');
+  const exitButton = document.getElementById("modal-close");
+
   const game = new Game(
     backgroundContext,
     groundContext,
@@ -671,7 +673,38 @@ document.addEventListener('DOMContentLoaded', ()=> {
     canvasContext,
   );
 
-  Modal(canvas);
+  openModal.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    game.pause("button");
+    modal.style.display = "block";
+  });
+
+  exitButton.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    modal.style.display = "none";
+    game.pause("button");
+    canvas.focus();
+  });
+
+  window.onclick = (e) => {
+    if (e.target == modal) {
+      modal.style.display = "none";
+      game.pause("button");
+      canvas.focus();
+    }
+  };
+
+  muteButton.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    game.mute("button");
+    canvas.focus();
+  })
+
+  pauseButton.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    game.pause("button");
+    canvas.focus();
+  })
 
   canvas.addEventListener('mousedown', () => {
     const titleScreen = document.getElementById('title-screen');
@@ -680,40 +713,6 @@ document.addEventListener('DOMContentLoaded', ()=> {
   });
 
 });
-
-
-/***/ }),
-
-/***/ "./lib/modal.js":
-/*!**********************!*\
-  !*** ./lib/modal.js ***!
-  \**********************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-const Modal = (canvas) => {
-  const modal = document.getElementById('myModal');
-  const openModal = document.getElementById("open-modal");
-  const exitButton = document.getElementById("modal-close");
-
-  openModal.onclick = () => {
-    modal.style.display = "block";
-  }
-
-  exitButton.onclick = () => {
-    modal.style.display = "none";
-    canvas.focus();
-  }
-
-  window.onclick = (e) => {
-    if (e.target == modal) {
-      modal.style.display = "none";
-      canvas.focus();
-    }
-  }
-}
-
-module.exports = Modal;
 
 
 /***/ }),
