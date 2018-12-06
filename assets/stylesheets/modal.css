@@ -24,7 +24,19 @@
     padding: 30px;
     border: 1px solid #888;
     width: 50%;
+    min-height: 35%;
     border: 5px solid lightblue;
+}
+
+#modal-content-loaded {
+  display: flex;
+}
+
+#modal-content-loaded > img {
+  display: block;
+  width: 20%;
+  height: 100%;
+  margin-right: 40px;
 }
 
 .modal-content h1 {
@@ -34,14 +46,15 @@
 }
 
 .modal-content li {
-  margin: 10px 0;
-  text-align: center;
+  margin: 20px 0;
+  max-height: 25px;
+  text-align: left;
 }
 
 .modal-content img {
   display: inline;
-  height: 35px;
-  width: 35px;
+  height: 22px;
+  width: 22px;
 }
 
 #modal-close {

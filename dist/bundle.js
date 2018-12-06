@@ -219,11 +219,11 @@ const levelText = (level) => {
     case 2:
       return "Tip: Press SPACE twice to double-jump!";
     case 3:
-      return "Tip: Time your jumps carefully...";
+      return "Tip: Collect PokeBalls for bonus points and powerups!";
   }
 }
 
-const CanvasText = (info, context, score) => {
+const CanvasText = (info, context, score, invTimer) => {
   switch (info) {
     case "TRANSITION":
       context.font = "700 50px Aclonica";
@@ -235,6 +235,16 @@ const CanvasText = (info, context, score) => {
       context.strokeText(`${levelText(score.currentLevel)}`, 450, 250);
       context.textAlign = "center";
       break;
+    case "INVINCIBLE":
+      context.font = "700 60px Aclonica";
+      context.fillStyle = "gold";
+      context.fillText(`${invTimer}`, 450, 130);
+      context.strokeText(`${invTimer}`, 450, 130);
+      context.font = "700 30px Aclonica";
+      context.fillText(`INVINCIBLE`, 450, 170);
+      context.strokeText(`INVINCIBLE`, 450, 170);
+      break;
+
   }
 }
 
@@ -258,6 +268,8 @@ class Enemy {
     this.width = 50;
     this.height = 50;
     this.frameCount = 0;
+    this.faintFX = new Audio('./assets/audio/gameboy.mp3');
+
   }
 
   renderSprite(context) {
@@ -288,33 +300,46 @@ module.exports = Enemy;
 const Enemy = __webpack_require__(/*! ./enemy */ "./lib/enemy.js");
 
 const KOFFING_SPRITES = {"reg1":[0,2,36,36], "reg2":[38,2,36,36],
-  "reg3":[76,2,36,36]};
+  "reg3":[76,2,36,36], "faint1": [0, 160, 45, 45], "faint2": [46, 152, 58, 58],
+  "faint3": [105, 149, 66, 66]};
 
 class Koffing extends Enemy {
   constructor(props) {
     super(props);
     this.width = 70;
     this.height = 70;
+    this.fainted = false;
 
     this.sprites = new Image();
     this.sprites.src = './assets/images/koffing-sprites.png';
   }
 
-  extractSprite(context, coordinates) {
+  extractSprite(context, coordinates, extra = 0) {
     context.drawImage (this.sprites, coordinates[0], coordinates[1],
-      coordinates[2], coordinates[3], this.xPos, this.yPos, this.width, this.height);
+      coordinates[2], coordinates[3], this.xPos - extra/2, this.yPos - extra/2,
+      this.width + extra, this.height + extra);
   }
 
   renderSprite(context) {
-    if (this.frameCount < 15) {
-      this.extractSprite(context, KOFFING_SPRITES["reg1"]);
-    } else if (this.frameCount < 30) {
-      this.extractSprite(context, KOFFING_SPRITES["reg2"]);
-    } else if (this.frameCount < 45) {
-      this.extractSprite(context, KOFFING_SPRITES["reg3"]);
-    } else if (this.frameCount < 60) {
-      this.extractSprite(context, KOFFING_SPRITES["reg2"]);
-      this.frameCount = 0;
+    if (this.fainted) {
+      if (this.frameCount < 5) {
+        this.extractSprite(context, KOFFING_SPRITES["faint1"]);
+      } else if (this.frameCount < 11) {
+        this.extractSprite(context, KOFFING_SPRITES["faint2"], 35);
+      } else {
+        this.extractSprite(context, KOFFING_SPRITES["faint3"], 60);
+      }
+    } else {
+      if (this.frameCount < 15) {
+        this.extractSprite(context, KOFFING_SPRITES["reg1"]);
+      } else if (this.frameCount < 30) {
+        this.extractSprite(context, KOFFING_SPRITES["reg2"]);
+      } else if (this.frameCount < 45) {
+        this.extractSprite(context, KOFFING_SPRITES["reg3"]);
+      } else if (this.frameCount < 60) {
+        this.extractSprite(context, KOFFING_SPRITES["reg2"]);
+        this.frameCount = 0;
+      }
     }
   }
 }
@@ -334,7 +359,8 @@ module.exports = Koffing;
 const Enemy = __webpack_require__(/*! ./enemy */ "./lib/enemy.js");
 
 const MEOWTH_SPRITES = {"prep1":[2,210,39,45], "prep2":[41,210,42,45],
-  "prep3":[84,210,45,47], "attack":[298,211,40,46]};
+  "prep3":[84,210,45,47], "attack":[298,211,40,46], "faint1":[41, 165, 36, 45],
+  "faint2":[77, 163, 35, 46],"faint3":[2, 60, 47, 44]};
 
 class Meowth extends Enemy {
   constructor(props) {
@@ -342,30 +368,41 @@ class Meowth extends Enemy {
     this.yPos = 280;
     this.speed = 3;
     this.attackPos = 650 + Math.floor(Math.random()*30);
-
+    this.fainted = false;
     this.sprites = new Image();
     this.sprites.src = './assets/images/meowth-sprites.png';
   }
 
-  extractSprite(context, coordinates) {
+  extractSprite(context, coordinates, extra = 0) {
     context.drawImage (this.sprites, coordinates[0], coordinates[1],
-      coordinates[2], coordinates[3], this.xPos, this.yPos, this.width, this.height);
+      coordinates[2], coordinates[3], this.xPos, this.yPos, this.width + extra, this.height);
   }
 
   renderSprite(context) {
-    if (this.xPos >= this.attackPos + 150) {
-      this.extractSprite(context, MEOWTH_SPRITES["prep1"]);
-    } else if (this.xPos >= this.attackPos + 120) {
-      this.extractSprite(context, MEOWTH_SPRITES["prep2"]);
-    } else if (this.xPos >= this.attackPos) {
-      this.extractSprite(context, MEOWTH_SPRITES["prep3"]);
-    } else if (this.xPos < this.attackPos) {
-      this.extractSprite(context, MEOWTH_SPRITES["attack"]);
+    if (this.fainted) {
+      if (this.frameCount < 5) {
+        this.extractSprite(context, MEOWTH_SPRITES["faint1"]);
+      } else if (this.frameCount < 11) {
+        this.extractSprite(context, MEOWTH_SPRITES["faint2"]);
+      } else {
+        this.extractSprite(context, MEOWTH_SPRITES["faint3"], 15);
+      }
+    } else {
+      if (this.xPos >= this.attackPos + 150) {
+        this.extractSprite(context, MEOWTH_SPRITES["prep1"]);
+      } else if (this.xPos >= this.attackPos + 120) {
+        this.extractSprite(context, MEOWTH_SPRITES["prep2"]);
+      } else if (this.xPos >= this.attackPos) {
+        this.extractSprite(context, MEOWTH_SPRITES["prep3"]);
+      } else if (this.xPos < this.attackPos) {
+        this.extractSprite(context, MEOWTH_SPRITES["attack"]);
+      }
     }
+
   }
 
   render(context) {
-    if (this.xPos > 50 && this.xPos < this.attackPos) {
+    if (this.xPos > 50 && this.xPos < this.attackPos && !this.fainted) {
       this.speed = 30;
     } else {
       this.speed = 3;
@@ -424,6 +461,7 @@ class Game {
 
     this.playAudio = new Audio('./assets/audio/shiver_star.mp3');
     this.playAudio.loop = true;
+    this.invTimer = 0;
   }
 
   setKeys() {
@@ -431,6 +469,8 @@ class Game {
     this.canvas.addEventListener('keydown', (e) => this.restart(e));
     this.canvas.addEventListener('keydown', (e) => this.pause(e));
     this.canvas.addEventListener('keydown', (e) => this.mute(e));
+    this.canvas.addEventListener('click', (e) => this.jump(e));
+    this.canvas.addEventListener('click', (e) => this.restart(e));
   }
 
   setVisualAssets(backgroundContext, groundContext) {
@@ -439,8 +479,17 @@ class Game {
     this.balloon = new Balloon();
   }
 
+  removePokeballs () {
+    const pokeballs = document.getElementsByClassName("pb");
+    for (let i = 0; i < pokeballs.length; i++) {
+      pokeballs[i].src = './assets/images/black_ball.png';
+    }
+  }
+
   start() {
     document.getElementById("gameover-disp").classList.add("hidden");
+    document.getElementById("item-list").classList.remove("hidden");
+    this.removePokeballs();
     this.context.clearRect(0,0,900,400);
     this.score = new Score();
     this.started = true;
@@ -473,6 +522,30 @@ class Game {
       if (this.score.frameCount === 700 || this.score.frameCount === 1500) {
         this.transitioning = true;
       }
+
+      if (this.invTimer > 0 && (this.entities.length || !this.transitioning)) {
+        this.invTimer -= 1;
+        if (this.invTimer > 690) {
+          this.player.height = 60;
+          this.player.width = 60;
+          this.player.yPos = 270;
+          this.player.xPos = 115;
+        } else if (this.invTimer > 680) {
+          this.player.height = 70;
+          this.player.width = 70;
+          this.player.yPos = 280;
+        } else if (this.invTimer > 670) {
+          this.player.height = 80;
+          this.player.width = 80;
+
+        }
+        CanvasText("INVINCIBLE", this.context, null, this.invTimer);
+      };
+      if (this.invTimer === 1) {
+        this.player.removeInv();
+        this.removePokeballs();
+      }
+
       this.balloon.render(this.context);
       this.background.render();
       this.ground.render();
@@ -485,11 +558,28 @@ class Game {
 
     this.entities.forEach((entity, i) => {
       entity.render(this.context);
-      if (!this.player.invincible && this.player.collided(entity)) {
+      if (this.player.collided(entity)) {
         if (entity.constructor.name === "Pokeball") {
           this.score.currentScore += entity.points;
+          this.score.addPointsDisp();
+          if (!this.playAudio.muted) entity.pointFX.play();
+          if (this.player.heldItems.length < 3) {
+            this.player.heldItems.push(`pokeball`);
+            const pokeBall = document.getElementById(`pokeball-${this.player.heldItems.length}`)
+            pokeBall.src = "./assets/images/pokeball.png";
+            if (this.player.heldItems.length === 3) {
+              this.player.invincible = true;
+              this.invTimer = 700;
+            }
+          };
           outIndex = i;
-        } else {
+        } else if (this.player.invincible) {
+          if (!entity.fainted) {
+            entity.frameCount = 0;
+            entity.fainted = true;
+            if (!this.playAudio.muted) entity.faintFX.play();
+          }
+        } else if (!this.player.invincible) {
           this.end();
         }
       }
@@ -500,6 +590,7 @@ class Game {
     })
 
     if (outIndex !== null) this.entities.splice(outIndex, 1);
+
   }
 
   handleTransition() {
@@ -522,17 +613,18 @@ class Game {
 
 // KEY LISTENERS
   jump (e) {
-    if (e.code === 'Space' && !this.gameOver && this.started) {
+    if ((e.code === 'Space' || e.button === 0) && !this.gameOver && this.started && !this.paused) {
       e.preventDefault();
       this.player.setJumpVel();
     }
   }
 
   restart(e) {
-    if (e.code === 'KeyR') {
+    if ((e.code === 'KeyR' || e.button === 0) && this.gameOver) {
       e.preventDefault();
       this.player.yPos = 280;
       this.entities = [];
+      this.player.heldItems = [];
       this.gameOver = false;
       this.transitioning = true;
       this.spawning = false;
@@ -596,7 +688,8 @@ class Game {
       const text = document.createTextNode(score);
       li.appendChild(text);
       if (score === this.score.currentScore && !highlighted) {
-        li.classList.add("highscore");
+        const classesToAdd = ["highscore", "blinking"];
+        li.classList.add(...classesToAdd);
         highlighted = true;
       }
       document.getElementById("scores-list").appendChild(li);
@@ -675,21 +768,21 @@ document.addEventListener('DOMContentLoaded', ()=> {
 
   openModal.addEventListener('mousedown', (e) => {
     e.preventDefault();
-    game.pause("button");
+    if (!game.paused) game.pause("button");
     modal.style.display = "block";
   });
 
   exitButton.addEventListener('mousedown', (e) => {
     e.preventDefault();
     modal.style.display = "none";
-    game.pause("button");
+    if (game.paused) game.pause("button");
     canvas.focus();
   });
 
   window.onclick = (e) => {
     if (e.target == modal) {
       modal.style.display = "none";
-      game.pause("button");
+      if (game.paused) game.pause("button");
       canvas.focus();
     }
   };
@@ -730,6 +823,12 @@ const SPRITES = {"fall": [125,6,26,26], "jump":[160,5,26,26],
   "walk1":[281,5,26,26], "walk2": [252,5,26,26], "walk3": [223,5,26,26],
   "walk4":[195,5,26,26]};
 
+const PARTICLES = {"frame1": [2, 2, 40, 40], "frame2":[51, 2, 46, 46],
+  "frame3": [149, 2, 46, 46], "frame4": [198, 2, 46, 46], "frame5": [394, 2, 46, 46],
+  "frame6": [2, 52, 46, 46], "frame7": [149, 52, 46, 46], "frame8": [2, 100, 46, 46],
+  "frame9": [100, 100, 46, 46], "frame10": [296, 100, 46, 46], "frame11":[2, 149, 46, 46],
+  "frame12": [100, 148, 46, 46]}
+
 class Player {
   constructor(props) {
     this.xPos = props.xPos;
@@ -744,7 +843,18 @@ class Player {
     this.doubleJumpFX = new Audio('./assets/audio/jump_02.wav');
     this.sprites = new Image();
     this.sprites.src = './assets/images/jigglypuff-sprites.png';
+    this.particles = new Image();
+    this.particles.src = './assets/images/invincible_particle.png';
     this.frameCount = 0;
+    this.particleFrameCount = 0;
+    this.heldItems = [];
+  }
+
+  removeInv() {
+    this.invincible = false;
+    this.heldItems = [];
+    this.width = 50;
+    this.height = 50;
   }
 
   renderJump() {
@@ -773,33 +883,63 @@ class Player {
     }
   }
 
-  extractSprite(context, coordinates) {
-    context.drawImage(this.sprites, coordinates[0], coordinates[1],
-      coordinates[2], coordinates[3], this.xPos, this.yPos,
-      this.width, this.height);
+  extractSprite(context, coordinates, sprites, extraSize = 0) {
+    context.drawImage(sprites, coordinates[0], coordinates[1],
+      coordinates[2], coordinates[3], this.xPos - extraSize/2, this.yPos - extraSize/2,
+      this.width + extraSize, this.height + extraSize);
+  }
+
+  renderInvincible(context) {
+    const frames = 5;
+    if (this.particleFrameCount < frames*1) {
+      this.extractSprite(context, PARTICLES["frame1"], this.particles, 40);
+    } else if (this.particleFrameCount < frames*2) {
+      this.extractSprite(context, PARTICLES["frame2"], this.particles, 40);
+    } else if (this.particleFrameCount < frames*3) {
+      this.extractSprite(context, PARTICLES["frame3"], this.particles, 40);
+    } else if (this.particleFrameCount < frames*4) {
+      this.extractSprite(context, PARTICLES["frame4"], this.particles, 40);
+    } else if (this.particleFrameCount < frames*5) {
+      this.extractSprite(context, PARTICLES["frame5"], this.particles, 40);
+    } else if (this.particleFrameCount < frames*6) {
+      this.extractSprite(context, PARTICLES["frame6"], this.particles, 40);
+    } else if (this.particleFrameCount < frames*7) {
+      this.extractSprite(context, PARTICLES["frame7"], this.particles, 40);
+    } else if (this.particleFrameCount < frames*8) {
+      this.extractSprite(context, PARTICLES["frame8"], this.particles, 40);
+    } else if (this.particleFrameCount < frames*9) {
+      this.extractSprite(context, PARTICLES["frame9"], this.particles, 40);
+    } else if (this.particleFrameCount < frames*10) {
+      this.extractSprite(context, PARTICLES["frame10"], this.particles, 40);
+    } else if (this.particleFrameCount < frames*11) {
+      this.extractSprite(context, PARTICLES["frame11"], this.particles, 40);
+    } else {
+      this.extractSprite(context, PARTICLES["frame12"], this.particles, 40);
+      this.particleFrameCount = 0;
+    }
   }
 
   renderSprite(context) {
     const frames = 9;
     if (this.vel > 0) {
-      this.extractSprite(context, SPRITES["fall"]);
+      this.extractSprite(context, SPRITES["fall"], this.sprites);
       this.frameCount = 0;
     } else if (this.jumping) {
-      this.extractSprite(context, SPRITES["jump"]);
+      this.extractSprite(context, SPRITES["jump"], this.sprites);
       this.frameCount = 0;
 
     } else if (this.frameCount < frames*1) {
-      this.extractSprite(context, SPRITES["walk1"]);
+      this.extractSprite(context, SPRITES["walk1"], this.sprites);
     } else if (this.frameCount < frames*2) {
-      this.extractSprite(context, SPRITES["walk2"]);
+      this.extractSprite(context, SPRITES["walk2"], this.sprites);
     } else if (this.frameCount < frames*3) {
-      this.extractSprite(context, SPRITES["walk3"]);
+      this.extractSprite(context, SPRITES["walk3"], this.sprites);
     } else if (this.frameCount < frames*4) {
-      this.extractSprite(context, SPRITES["walk4"]);
+      this.extractSprite(context, SPRITES["walk4"], this.sprites);
     } else if (this.frameCount < frames*5) {
-      this.extractSprite(context, SPRITES["walk3"]);
+      this.extractSprite(context, SPRITES["walk3"], this.sprites);
     } else if (this.frameCount < frames*6) {
-      this.extractSprite(context, SPRITES["walk2"]);
+      this.extractSprite(context, SPRITES["walk2"], this.sprites);
       this.frameCount = 0;
     }
   }
@@ -807,8 +947,10 @@ class Player {
   render (context) {
     context.clearRect(0,0,900,400);
     this.renderSprite(context);
+    if (this.invincible) this.renderInvincible(context);
     this.renderJump();
     this.frameCount += 1;
+    this.particleFrameCount += 1;
   }
 
   collided (object) {
@@ -845,6 +987,7 @@ class Pokeball extends Item {
     this.sprites = new Image();
     this.sprites.src = './assets/images/pokeball.png';
     this.points = 500;
+    this.pointFX = new Audio('./assets/audio/gameboy.mp3');
   }
 
   setSprite(context) {
@@ -870,17 +1013,28 @@ class Score {
     this.currentScore = 0;
     this.frameCount = 0;
     this.currentLevel = 1;
+    this.plusPointTimer = 0;
+    document.getElementById('score-pickup').classList.add('hidden');
+
   }
 
   display(context) {
+    context.textAlign = "center";
     context.font = "24px Aclonica";
     context.fillStyle = "white";
     context.strokeStyle = "black";
-    context.fillText("Score: " + this.currentScore, 850, 35);
-    context.strokeText("Score: " + this.currentScore, 850, 35);
-    context.textAlign = "end";
-    context.fillText("LEVEL " + this.currentLevel, 150, 35);
-    context.strokeText("LEVEL " + this.currentLevel, 150, 35);
+    context.fillText("SCORE", 250, 35);
+    context.strokeText("SCORE", 250, 35);
+    context.fillText(this.currentScore, 250, 75);
+    context.strokeText(this.currentScore, 250, 75);
+    context.fillText("LEVEL " + this.currentLevel, 100, 35);
+    context.strokeText("LEVEL " + this.currentLevel, 100, 35);
+
+  }
+
+  addPointsDisp () {
+    this.plusTimer = 100;
+    document.getElementById('score-pickup').classList.remove('hidden');
   }
 
   render (context) {
@@ -892,6 +1046,10 @@ class Score {
   update() {
     this.currentScore += 3;
     this.frameCount += 1;
+    if (this.plusTimer > 0) this.plusTimer -= 1;
+    if (this.plusTimer === 1) {
+      document.getElementById('score-pickup').classList.add('hidden');
+    }
   }
 
   levelcheck () {
@@ -960,7 +1118,8 @@ const Spawn = (level) => {
       ];
     } else if (generator < 0.6) {
       return [
-        new Meowth({xPos: randXPos})
+        new Meowth({xPos: randXPos + 100}),
+        new Pokeball({xPos: randXPos, yPos: 200})
       ];
     } else {
       return [
@@ -976,12 +1135,14 @@ const Spawn = (level) => {
       ];
     } else if (generator < 0.4) {
       return [
-        new Meowth({xPos: randXPos})
+        new Meowth({xPos: randXPos + 100}),
+        new Pokeball({xPos: randXPos, yPos: 200})
       ]
     } else if (generator < 0.7) {
       return [
         new Koffing({speed: 7, xPos: randXPos, yPos: 250}),
-        new Koffing({speed: 7, xPos: randXPos, yPos: 180})
+        new Koffing({speed: 7, xPos: randXPos, yPos: 180}),
+        new Pokeball({xPos: randXPos, yPos: 200})
       ];
     } else {
       return [

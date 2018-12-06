@@ -43,7 +43,8 @@ body {
   margin-right: auto;
   width: 300px;
   height: 180px;
-  background-color: pink;
+  background: #1e155d;
+  color: #13ffed;
   box-sizing: border-box;
   border-radius: 10px;
   opacity: 0.85;
@@ -79,6 +80,11 @@ body {
   height: 50px;
   text-align: center;
   color: pink;
+  z-index: 3;
+}
+
+#pause-disp, #mute-disp {
+  position: relative;
 }
 
 #gameover-disp {
@@ -107,6 +113,14 @@ body {
 
 .selected {
   color: pink;
+}
+
+.bolded {
+  color: gold;
+}
+
+.highscore {
+  color: teal;
 }
 
 .blinking{
@@ -144,12 +158,26 @@ body {
   z-index: -1;
 }
 
-.hidden {
-  display: none;
+#item-list {
+  position: absolute;
+  width: 100px;
+  margin: 50px 0 0 50px;
 }
 
-.highscore {
-  color: teal;
+#item-list > li {
+  width: 33%;
+  float: left;
+}
+
+#score-pickup {
+  position: absolute;
+  color: gold;
+  top: 100px;
+  left: 220px;
+}
+
+.hidden {
+  display: none;
 }
 
 footer i {
@@ -209,6 +237,8 @@ footer {
   color: pink;
 }
 
+
+
 /* @media screen and (min-width: 320px) and (max-width: 767px) and (orientation: landscape) {
   html {
     transform: rotate(-90deg);
@@ -222,8 +252,8 @@ footer {
 } */
 
 @media screen and (max-width: 800px) {
-  html {
-    width: 100vh;
+  body {
+    width: 100vw;
     height: 100vh;
   }
 
@@ -233,15 +263,24 @@ footer {
     height: 0;
   }
 
+  canvas {
+    width: 100%;
+    height: 100%;
+  }
+
   #canvas-container {
     top: 0%;
-    height: 80%;
+    width: 100%;
+    height: 100%;
+  }
+
+  #title-screen {
+    width: 100%;
+    height: 100%;
   }
 
   footer {
-    position: fixed;
-    bottom: 0;
-    height: 25%;
-    width: 100%;
+    display: none;
+    height: 0;
   }
 }

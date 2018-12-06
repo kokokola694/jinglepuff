@@ -19,6 +19,14 @@
       <canvas id="canvas" width="900" height="400" tabindex="1"></canvas>
       <canvas id="ground" width="900" height="400" ></canvas>
       <canvas id="background" width="900" height="400"></canvas>
+      <ul id="item-list" class="hidden">
+        <li><img class="pb" id="pokeball-1" src="assets/images/black_ball.png"/></li>
+        <li><img class="pb" id="pokeball-2" src="assets/images/black_ball.png"/></li>
+        <li><img class="pb" id="pokeball-3" src="assets/images/black_ball.png"/></li>
+      </ul>
+      <div id="score-pickup" class="hidden">
+        + 500
+      </div>
       <div id="leaderboard" class="hidden">
         <h1>YOUR HIGH SCORES</h1>
         <ul id="scores-list">
@@ -61,10 +69,16 @@
       <div class="modal-content">
         <section id="modal-close">&times;</section>
         <h1>How to Play</h1>
-        <ul>
-          <li>Avoid enemies Pokemon by pressing SPACE to jump!</li>
-          <li>Collect PokeBalls to obtain bonus points! <img src="assets/images/pokeball.png"/></li>
-        </ul>
+        <div id="modal-content-loaded">
+          <img src="assets/images/smashmodel.png" >
+          <ul>
+            <li>Avoid enemy Pokemon by pressing <b class="selected">SPACE</b> to jump!</li>
+            <li>Collect PokeBalls <img src="assets/images/pokeball.png"/> to obtain bonus points! </li>
+            <li>Collecting 3 PokeBalls <img src="assets/images/pokeball.png"/>
+              <img src="assets/images/pokeball.png"/>
+              <img src="assets/images/pokeball.png"/> will unlock a temporary <b class="bolded">invincibility</b> powerup!</li>
+          </ul>
+        </div>
       </div>
 
     </section>
