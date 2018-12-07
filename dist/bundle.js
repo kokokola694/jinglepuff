@@ -511,6 +511,7 @@ class Game {
       } else if (this.transitioning) {
         this.spawning = false;
         this.handleTransition();
+        document.getElementById('score-pickup').classList.add('hidden');
       } else if (!this.entities.length) {
         this.spawning = true;
         this.score.render(this.context);
@@ -525,7 +526,7 @@ class Game {
 
       if (this.invTimer > 0 && (this.entities.length || !this.transitioning)) {
         this.invTimer -= 1;
-        CanvasText("INVINCIBLE", this.context, null, this.invTimer);
+        if (this.invTimer > 1) CanvasText("INVINCIBLE", this.context, null, this.invTimer);
       };
       if (this.invTimer === 1) {
         this.player.removeInv();
@@ -565,7 +566,7 @@ class Game {
             entity.fainted = true;
             if (!this.playAudio.muted) entity.faintFX.play();
           }
-        } else if (!this.player.invincible) {
+        } else if (!this.player.invincible && !entity.fainted) {
           this.end();
         }
       }
