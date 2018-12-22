@@ -215,11 +215,13 @@ module.exports = Balloon;
 const levelText = (level) => {
   switch (level) {
     case 1:
-      return "Tip: Press SPACE to jump!";
+      return "Press SPACE to jump! Press twice to double jump!";
     case 2:
-      return "Tip: Press SPACE twice to double-jump!";
+      return "Collect PokeBalls for bonus points and powerups!";
     case 3:
-      return "Tip: Collect PokeBalls for bonus points and powerups!";
+      return "WATCH OUT! Meowth is a faster enemy Pokemon!";
+    case 4:
+      return "Enemies will be faster and harder to avoid!"
   }
 }
 
@@ -230,7 +232,7 @@ const CanvasText = (info, context, score, invTimer) => {
       context.fillStyle = "pink";
       context.fillText(`LEVEL ${score.currentLevel}`, 450, 200);
       context.strokeText(`LEVEL ${score.currentLevel}`, 450, 200);
-      context.font = "500 25px Aclonica";
+      context.font = "500 30px Aclonica";
       context.fillText(`${levelText(score.currentLevel)}`, 450, 250);
       context.strokeText(`${levelText(score.currentLevel)}`, 450, 250);
       context.textAlign = "center";
@@ -403,7 +405,7 @@ class Meowth extends Enemy {
 
   render(context) {
     if (this.xPos > 50 && this.xPos < this.attackPos && !this.fainted) {
-      this.speed = 30;
+      this.speed = 12;
     } else {
       this.speed = 3;
     }
@@ -430,6 +432,8 @@ const Score = __webpack_require__(/*! ./score */ "./lib/score.js");
 const Balloon = __webpack_require__(/*! ./balloon */ "./lib/balloon.js");
 const Spawn = __webpack_require__(/*! ./spawn */ "./lib/spawn.js");
 const CanvasText = __webpack_require__(/*! ./canvas_text */ "./lib/canvas_text.js");
+
+const LEVEL_FRAMES = [400, 1500, 2500];
 
 class Game {
   constructor (backgroundContext, groundContext, canvas, canvasContext) {
@@ -520,7 +524,7 @@ class Game {
       }
 
       if (this.spawning) this.createSpawn();
-      if (this.score.frameCount === 700 || this.score.frameCount === 1500) {
+      if (LEVEL_FRAMES.includes(this.score.frameCount)) {
         this.transitioning = true;
       }
 
@@ -861,7 +865,7 @@ class Player {
   setJumpVel() {
     if (!this.jumping) {
       this.jumping = true;
-      this.vel = -7;
+      this.vel = -8;
       this.jumpFX.play();
     } else if (!this.doubleJumping) {
       this.doubleJumping = true;
@@ -1040,10 +1044,12 @@ class Score {
   }
 
   levelcheck () {
-    if (this.frameCount === 700) {
+    if (this.frameCount === 400) {
       this.currentLevel = 2;
     } else if (this.frameCount === 1500) {
       this.currentLevel = 3;
+    } else if (this.frameCount === 2500) {
+      this.currentLevel = 4;
     }
   }
 }
@@ -1067,53 +1073,38 @@ const Pokeball = __webpack_require__(/*! ./pokeball */ "./lib/pokeball.js");
 const Spawn = (level) => {
   const randXPos = Math.floor(Math.random() * 50) + 950;
   const generator = Math.random();
-  // Level 1A
-  if (level < 350) {
-    if (generator < 0.65) {
-      return [
-        new Pokeball({xPos: randXPos, yPos: 300}),
-        new Koffing({speed: 5, xPos: randXPos + 200, yPos: 250})
-      ];
-    } else {
-      return [
-        new Koffing({speed: 5, xPos: randXPos, yPos: 250})
-      ];
-    }
-  // Level 1B
-  } else if (level <= 700) {
-    if (generator < 0.25) {
+  // Level 1
+  if (level <= 400) {
+    return [
+      new Koffing({speed: 5, xPos: randXPos, yPos: 250})
+    ];
+  // Level 2
+} else if (level <= 1500) {
+    if (generator < 0.6) {
       return [
         new Koffing({speed: 5, xPos: randXPos + 200, yPos: 250}),
         new Pokeball({xPos: randXPos, yPos: 300})
       ];
-    } else if (generator < 0.75) {
-      return [
-        new Meowth({xPos: randXPos})
-      ];
     } else {
       return [
-        new Meowth({xPos: randXPos + 100}),
+        new Koffing({speed: 5, xPos: randXPos, yPos: 250}),
         new Pokeball({xPos: randXPos, yPos: 200})
       ];
     }
-  // Level 2A
-  } else if (level <= 1000) {
+  // Level 3
+} else if (level <= 2500) {
     if (generator < 0.3) {
       return [
         new Koffing({speed: 6.5, xPos: randXPos + 100, yPos: 250}),
         new Pokeball({xPos: randXPos, yPos: 200})
       ];
-    } else if (generator < 0.6) {
+    } else {
       return [
         new Meowth({xPos: randXPos + 100}),
         new Pokeball({xPos: randXPos, yPos: 200})
       ];
-    } else {
-      return [
-        new Koffing({speed: 6.5, xPos: randXPos, yPos: 250}),
-        new Koffing({speed: 6.5, xPos: randXPos, yPos: 180})
-      ];
     }
+  // Level 4
   } else {
     if (generator < 0.2) {
       return [
