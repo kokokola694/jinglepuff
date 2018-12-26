@@ -9,12 +9,14 @@
       <link rel="stylesheet" href="https://cdn.rawgit.com/konpa/devicon/df6431e323547add1b4cf45992913f15286456d3/devicon.min.css">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
       <link href="https://fonts.googleapis.com/css?family=Aclonica" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
 </head>
   <body>
     <img id="logo" src="assets/images/logo.png"/>
     <section id="canvas-container">
       <div id="title-screen">
-        <h2 class="blinking">Click anywhere to play!</h2>
+        <h2 class="blinking">Click anywhere to play!<br><br>(instructions below)</h2>
       </div>
       <canvas id="canvas" width="900" height="400" tabindex="1"></canvas>
       <canvas id="ground" width="900" height="400" ></canvas>
@@ -45,17 +47,26 @@
 
 
       <footer>
-        <button id="open-modal">How to Play</button>
+        <button id="open-modal">
+          How to Play
+          <i class="material-icons" style="font-size:30px">help</i>
+        </button>
         <section class="links">
           <h2>Created by: <a href="https://kokokola694.github.io/">Michael Ko</a></h2>
           <div>
-            <a href="https://github.com/kokokola694"><i class="fa fa-github" style="font-size:50px"></i></a>
-            <a href="https://www.linkedin.com/in/michael-ko-7bb503b1/"><i class="fa fa-linkedin-square" style="font-size:50px"></i></a>
+            <a href="https://github.com/kokokola694"><i class="fa fa-github" style="font-size:40px"></i></a>
+            <a href="https://www.linkedin.com/in/michael-ko-7bb503b1/"><i class="fa fa-linkedin-square" style="font-size:40px"></i></a>
           </div>
         </section>
         <section class="footer-buttons">
-          <button id="pause-btn">Pause (P)</button>
-          <button id="mute-btn">Mute/Unmute (M)</button>
+          <button id="pause-btn">
+            <i class="material-icons pause-icon">pause</i>
+            <div>Pause (P)</div>
+          </button>
+          <button id="mute-btn">
+            <i class="material-icons mute-icon">volume_mute</i>
+            <div>Mute (M)</div>
+          </button>
         </section>
       </footer>
     </section>

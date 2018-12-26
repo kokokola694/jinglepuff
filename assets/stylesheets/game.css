@@ -181,9 +181,6 @@ body {
   display: none;
 }
 
-footer i {
-  font-size: 50px;
-}
 
 footer h2 a {
   border-bottom: 1px solid teal;
@@ -192,6 +189,19 @@ footer h2 a {
 footer h2 a:hover{
   color: pink;
   border-bottom: 1px solid pink;
+}
+
+#open-modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#mute-btn, #pause-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 100%;
 }
 
 footer i:hover {
@@ -228,6 +238,7 @@ footer {
   padding: 10px;
   box-sizing: border-box;
   font-size: 15px;
+  width: 26%;
 }
 
 .footer-buttons button {
