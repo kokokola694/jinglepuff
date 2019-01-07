@@ -596,6 +596,8 @@ class Game {
 
   end () {
     document.getElementById("gameover-disp").classList.remove("hidden");
+    document.getElementById('canvas').focus();
+
     this.inputScore(this.score.currentScore);
     this.displayHighScores();
     this.playAudio.pause();
